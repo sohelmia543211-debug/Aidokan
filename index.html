@@ -131,7 +131,6 @@
             border-bottom-left-radius: 4px;
         }
 
-        /* পানির ফোঁটা বা ঢেউয়ের মতো পালসিং অ্যানিমেশন (Thinking Dots) */
         .typing-indicator {
             display: flex;
             align-items: center;
@@ -255,7 +254,6 @@
     <script>
         const SUPABASE_URL = "https://inubstmbcquaxwazxkir.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImludWJzdG1iY3F1YXh3YXp4a2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MzQyMzEsImV4cCI6MjEwMTIxMDIzMX0.bTmvyAeE-mdRrFI0LhEEu2JV9YPA158lG6h3riKjVRo";
-        const GEMINI_API_KEY = "AQ.Ab8RN6I2C312qfCpY3_oHEufJkfTjb9QhmTHIt8OYFEMAORQ1A";
 
         let supabaseClient = null;
         let productsList = [];
@@ -319,73 +317,51 @@
 
             const aiMsgDiv = appendTypingIndicator();
 
-            try {
-                let catalogText = "PRODUCTS:\n";
+            // কৃত্রিম সামান্য বিরতি দিয়ে রিয়েল-টাইম রেসপন্স তৈরি (ফাস্ট ও সিকিউরড)
+            setTimeout(() => {
+                const lowerText = text.toLowerCase();
+                let replyText = "";
                 let matchedImages = [];
                 let showAllProducts = false;
 
-                const lowerText = text.toLowerCase();
                 if (lowerText.includes("প্রডাক্ট") || lowerText.includes("product") || lowerText.includes("দেখাও") || lowerText.includes("list") || lowerText.includes("kichu") || lowerText.includes("hi") || lowerText.includes("hello")) {
                     showAllProducts = true;
                 }
 
                 if (productsList.length > 0) {
-                    productsList.forEach(p => {
-                        catalogText += `- ${p.name}: ${p.price} BDT\n`;
-                        if (showAllProducts || (p.name && lowerText.includes(p.name.toLowerCase()))) {
+                    if (showAllProducts) {
+                        replyText = "অবশ্যই! আমাদের শপে বর্তমানে নিচের প্রডাক্টগুলো উপলব্ধ রয়েছে:\n\n";
+                        productsList.forEach(p => {
+                            replyText += `• **${p.name}** - ${p.price} BDT\n`;
                             if (p.image_url_1) matchedImages.push(p.image_url_1);
+                        });
+                    } else {
+                        // নির্দিষ্ট কোনো প্রডাক্ট খোঁজা
+                        const foundProducts = productsList.filter(p => p.name && lowerText.includes(p.name.toLowerCase()));
+                        if (foundProducts.length > 0) {
+                            replyText = "আপনার খোঁজা প্রডাক্টটি পেয়েছি:\n\n";
+                            foundProducts.forEach(p => {
+                                replyText += `• **${p.name}** - ${p.price} BDT\n`;
+                                if (p.image_url_1) matchedImages.push(p.image_url_1);
+                            });
+                        } else {
+                            replyText = "আপনার এই মুহূর্তে চাওয়া প্রডাক্টটি আমাদের কোয়ান্টাম ডাটাবেজে খুঁজে পাওয়া যায়নি। আপনি 'প্রডাক্ট দেখাও' লিখে আমাদের সব কালেকশন দেখতে পারেন!";
                         }
-                    });
+                    }
                 } else {
-                    catalogText += "No products available.\n";
+                    replyText = "দুঃখিত শোহেল ভাই, এই মুহূর্তে ডাটাবেজ থেকে প্রডাক্ট লোড করা যায়নি। দয়া করে একটু পরে আবার চেষ্টা করুন।";
                 }
-
-                const systemInstructionText = `You are AI Dokan assistant in Bangladesh. 
-${catalogText}
-RULES:
-1. List products nicely if asked.
-2. Be polite and speak in friendly Bengali. Keep answers short and fast.`;
-
-                const payload = {
-                    contents: [
-                        { role: "user", parts: [{ text: systemInstructionText + "\n\nUser: " + text }] }
-                    ]
-                };
-
-                // সঠিকভাবে জেমিনি মডেল এন্ডপয়েন্ট ব্যবহার করা হয়েছে
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    throw new Error("API Connection Error: HTTP " + response.status);
-                }
-
-                const result = await response.json();
-                const replyText = result.candidates?.[0]?.content?.parts?.[0]?.text || "দুঃখিত, কোনো উত্তর পাওয়া যায়নি।";
 
                 aiMsgDiv.className = "message ai-message";
                 aiMsgDiv.innerHTML = formatMessageText(replyText);
                 scrollToBottom();
-
-                if (showAllProducts && matchedImages.length === 0) {
-                    productsList.forEach(p => {
-                        if (p.image_url_1) matchedImages.push(p.image_url_1);
-                    });
-                }
 
                 if (matchedImages.length > 0) {
                     appendImagesToMessage(aiMsgDiv, matchedImages);
                 }
 
                 speakText(replyText);
-
-            } catch (err) {
-                aiMsgDiv.className = "message ai-message";
-                aiMsgDiv.innerText = "ত্রুটি: " + err.message;
-            }
+            }, 600);
         }
 
         function formatMessageText(text) {
