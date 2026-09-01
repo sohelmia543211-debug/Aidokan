@@ -242,7 +242,7 @@
 
     <div id="chat-container">
         <div class="message ai-message">
-            নমস্কার! আমি **AI Dokan** এর কোয়ান্টাম অ্যাসিস্ট্যান্ট। ২০৫০ সালের এই স্মার্ট শপে আপনাকে স্বাগতম। আপনি কি কোনো প্রডাক্ট দেখতে চান? আমাকে "প্রডাক্ট দেখাও" বললেই আমি আমাদের সব প্রডাক্ট এবং ছবি সামনে নিয়ে আসব!
+            নমস্কার শোহেল ভাই! আমি **AI Dokan** এর কোয়ান্টাম অ্যাসিস্ট্যান্ট। ২০৫০ সালের এই স্মার্ট শপে আপনাকে স্বাগতম। আপনি কি কোনো প্রডাক্ট দেখতে চান? আমাকে "প্রডাক্ট দেখাও" বললেই আমি আমাদের সব প্রডাক্ট এবং ছবি সামনে নিয়ে আসব!
         </div>
     </div>
 
@@ -321,41 +321,38 @@
                 const lowerText = text.toLowerCase();
                 let replyText = "";
                 let matchedImages = [];
-                let showAllProducts = false;
 
-                // সাধারণ কুশল বিনিময় বা চ্যাট হ্যান্ডেল করার জন্য
-                if (lowerText.includes("kemon") || lowerText.includes("কেমন") || lowerText.includes("alo") || lowerText.includes("hi") || lowerText.includes("hello") || lowerText.includes("سلام")) {
+                // ১. কুশল বিনিময় বা চ্যাট হ্যান্ডেল করার জন্য
+                if (lowerText.includes("kemon") || lowerText.includes("কেমন") || lowerText.includes("alo") || lowerText.includes("hi") || lowerText.includes("hello") || lowerText.includes("سلام") || lowerText.includes("hy")) {
                     replyText = "আমি আলহামদুলিল্লাহ ভালো আছি! ২০৫০ সালের এই নিউরাল নেক্সাসে আপনাকে কীভাবে সাহায্য করতে পারি? আপনি চাইলে 'প্রডাক্ট দেখাও' বলতে পারেন।";
                 } 
                 else if (lowerText.includes("kobor") || lowerText.includes("খবর") || lowerText.includes("ki obostha")) {
                     replyText = "সবকিছু কোয়ান্টাম সিস্টেমে নিখুঁতভাবে চলছে! বলুন, আজ কী দেখতে চান?";
                 }
-                else if (lowerText.includes("প্রডাক্ট") || lowerText.includes("product") || lowerText.includes("দেখাও") || lowerText.includes("list") || lowerText.includes("kichu")) {
-                    showAllProducts = true;
-                }
-
-                if (!replyText && productsList.length > 0) {
-                    if (showAllProducts) {
+                // ২. সব প্রডাক্ট দেখতে চাইলে
+                else if (lowerText.includes("প্রডাক্ট") || lowerText.includes("product") || lowerText.includes("দেখাও") || lowerText.includes("list") || lowerText.includes("kichu") || lowerText.includes("ki ki ache")) {
+                    if (productsList.length > 0) {
                         replyText = "অবশ্যই! আমাদের শপে বর্তমানে নিচের প্রডাক্টগুলো উপলব্ধ রয়েছে:\n\n";
                         productsList.forEach(p => {
                             replyText += `• **${p.name}** - ${p.price} BDT\n`;
                             if (p.image_url_1) matchedImages.push(p.image_url_1);
                         });
                     } else {
-                        // নির্দিষ্ট কোনো প্রডাক্ট খোঁজা
-                        const foundProducts = productsList.filter(p => p.name && lowerText.includes(p.name.toLowerCase()));
-                        if (foundProducts.length > 0) {
-                            replyText = "আপনার খোঁজা প্রডাক্টটি পেয়েছি:\n\n";
-                            foundProducts.forEach(p => {
-                                replyText += `• **${p.name}** - ${p.price} BDT\n`;
-                                if (p.image_url_1) matchedImages.push(p.image_url_1);
-                            });
-                        } else {
-                            replyText = "আপনার এই মুহূর্তে চাওয়া বিষয়টি বা প্রডাক্টটি আমাদের ডাটাবেজে সরাসরি ম্যাচ করেনি। আপনি 'প্রডাক্ট দেখাও' লিখে আমাদের সব কালেকশন দেখতে পারেন!";
-                        }
+                        replyText = "দুঃখিত শোহেল ভাই, এই মুহূর্তে ডাটাবেজ থেকে প্রডাক্ট লোড করা যায়নি। দয়া করে একটু পরে আবার চেষ্টা করুন।";
                     }
-                } else if (!replyText) {
-                    replyText = "দুঃখিত শোহেল ভাই, এই মুহূর্তে ডাটাবেজ থেকে প্রডাক্ট লোড করা যায়নি। দয়া করে একটু পরে আবার চেষ্টা করুন।";
+                } 
+                else {
+                    // ৩. নির্দিষ্ট কোনো প্রডাক্ট খোঁজা
+                    const foundProducts = productsList.filter(p => p.name && lowerText.includes(p.name.toLowerCase()));
+                    if (foundProducts.length > 0) {
+                        replyText = "আপনার খোঁজা প্রডাক্টটি পেয়েছি:\n\n";
+                        foundProducts.forEach(p => {
+                            replyText += `• **${p.name}** - ${p.price} BDT\n`;
+                            if (p.image_url_1) matchedImages.push(p.image_url_1);
+                        });
+                    } else {
+                        replyText = "আপনার কথাটি পুরোপুরি বুঝতে পারিনি। তবে আপনি চাইলে **'প্রডাক্ট দেখাও'** লিখে আমাদের সব কালেকশন দেখতে পারেন!";
+                    }
                 }
 
                 aiMsgDiv.className = "message ai-message";
