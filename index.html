@@ -254,6 +254,7 @@
     <script>
         const SUPABASE_URL = "https://inubstmbcquaxwazxkir.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImludWJzdG1iY3F1YXh3YXp4a2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MzQyMzEsImV4cCI6MjEwMTIxMDIzMX0.bTmvyAeE-mdRrFI0LhEEu2JV9YPA158lG6h3riKjVRo";
+        const GEMINI_API_KEY = window.GEMINI_API_KEY || "AQ.Ab8RN6ITu2aEabZlsxifL6QQwAFnKK23PblZasT9qm_371MEPw";
 
         let supabaseClient = null;
         let productsList = [];
@@ -317,44 +318,54 @@
 
             const aiMsgDiv = appendTypingIndicator();
 
-            setTimeout(() => {
-                const lowerText = text.toLowerCase();
-                let replyText = "";
-                let matchedImages = [];
+            // রিয়েল-টাইম ডেটাবেজ থেকে রিফ্রেশ করে নেওয়া যাতে নতুন কোনো প্রোডাক্ট যোগ হলে সাথে সাথে পেয়ে যায়
+            await fetchProducts();
 
-                // ১. সেলসম্যানের মতো কুশল বিনিময় বা কেমন আছেন হ্যান্ডেল করা
-                if (lowerText.includes("kemon") || lowerText.includes("কেমন") || lowerText.includes("alo") || lowerText.includes("hi") || lowerText.includes("hello") || lowerText.includes("سلام") || lowerText.includes("hy")) {
-                    replyText = "আলহামদুলিল্লাহ ভাই, আমি একদম ভালো আছি! বলুন আপনার কি অবস্থা? আজকে দোকানে কী দেখতে চাচ্ছেন বলুন, চমৎকার সব কালেকশন আছে আমাদের কাছে।";
-                } 
-                else if (lowerText.includes("kobor") || lowerText.includes("খবর") || lowerText.includes("ki obostha")) {
-                    replyText = "সবকিছু একদম ঠিকঠাক ভাই! বলুন আজ কোন প্রডাক্টটা নিয়ে কথা বলবো বা কি দেখাবো আপনাকে?";
+            let matchedImages = [];
+            const lowerText = text.toLowerCase();
+            productsList.forEach(p => {
+                if (p.name && lowerText.includes(p.name.toLowerCase())) {
+                    if (p.image_url_1) matchedImages.push(p.image_url_1);
                 }
-                // ২. সব প্রডাক্ট দেখতে চাইলে
-                else if (lowerText.includes("প্রডাক্ট") || lowerText.includes("product") || lowerText.includes("দেখাও") || lowerText.includes("list") || lowerText.includes("kichu") || lowerText.includes("ki ki ache")) {
-                    if (productsList.length > 0) {
-                        replyText = "অবশ্যই ভাই! এই মুহূর্তে আমাদের স্টকে যে প্রডাক্টগুলো আছে, সেগুলোর তালিকা নিচে দিলাম দেখে নিন:\n\n";
-                        productsList.forEach(p => {
-                            replyText += `• **${p.name}** - দাম মাত্র ${p.price} BDT\n`;
-                            if (p.image_url_1) matchedImages.push(p.image_url_1);
-                        });
-                    } else {
-                        replyText = "আরে ভাই, এই মুহূর্তে ডাটাবেজ থেকে প্রডাক্টগুলো লোড হতে একটু সমস্যা হচ্ছে। একটু পরে আবার ট্রাই করুন প্লিজ!";
-                    }
-                } 
-                else {
-                    // ৩. নির্দিষ্ট কোনো প্রডাক্ট খোঁজা (যেমন T-shirt বা অন্য কিছু)
-                    const foundProducts = productsList.filter(p => p.name && lowerText.includes(p.name.toLowerCase()));
-                    if (foundProducts.length >0) {
-                        replyText = "হ্যাঁ ভাই, পেয়েছি! আপনার পছন্দমতো এই প্রডাক্টটি আমাদের কাছে রয়েছে:\n\n";
-                        foundProducts.forEach(p => {
-                            replyText += `• **${p.name}** - দাম পড়বে মাত্র ${p.price} BDT\n`;
-                            if (p.image_url_1) matchedImages.push(p.image_url_1);
-                        });
-                        replyText += "\nনিন, প্রডাক্টটি কেমন লাগলো বলুন? নিতে চাইলে কনফার্ম করতে পারেন!";
-                    } else {
-                        // যদি ডাটাবেজে না থাকে, তবে একজন ভালো সেলসম্যানের মতো বিকল্প কথা বলা
-                        replyText = `আরে ভাই, আপনি যে **"${text}"** চাচ্ছেন, ঠিক এই নামে এই মুহূর্তে আমাদের স্টকে রেডি প্রডাক্ট নেই। তবে আপনি চাইলে আমাদের অন্যান্য সেরা প্রডাক্টগুলো দেখতে পারেন অথবা অন্য কিছু খুঁজতে পারেন। বলুন আর কী দেখাতে পারি?`;
-                    }
+            });
+
+            let inventoryInfo = productsList.length > 0 
+                ? productsList.map(p => `- ${p.name}: দাম ${p.price} BDT`).join('\n') 
+                : "বর্তমানে ডাটাবেজে কোনো প্রোডাক্ট পাওয়া যায়নি।";
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [
+                            {
+                                role: "user",
+                                parts: [
+                                    {
+                                        text: `তুমি একজন বাংলাদেশি ই-কমার্স দোকানের বন্ধুভাবাপন্ন ও চটপটে এআই সেলসম্যান। তোমার দোকানের নাম "AI Dokan"। দোকানের মালিকের নাম শোহেল ভাই।
+আমাদের বর্তমান স্টকে থাকা প্রোডাক্টগুলোর লাইভ তালিকা নিচে দেওয়া হলো:
+${inventoryInfo}
+
+গ্রাহক এখন তোমাকে এই কথাটি বলেছে: "${text}"
+
+নির্দেশনা:
+১. গ্রাহক যেভাবে কথা বলুক না কেন (বাংলা, বাংলিশ বা আঞ্চলিক ভাষা), তুমি একজন চমৎকার স্মার্ট সেলসম্যানের মতো তার কথার উত্তর দাও।
+২. যদি সে কোনো নির্দিষ্ট প্রোডাক্ট চায় এবং সেটি স্টকে থাকে, তাহলে তার দাম ও বিবরণসহ সুন্দরভাবে বুঝিয়ে বলো।
+৩. যদি স্টকে না থাকে, তবে বিনীতভাবে অন্য প্রোডাক্ট বা বিকল্প সাজেস্ট করো।
+৪. উত্তরটি সাবলীল বাংলায় (বা বাংলিশে গ্রাহকের স্টাইলে) এবং সংক্ষিপ্তভাবে দাও।`
+                                    }
+                                ]
+                            }
+                        ]
+                    })
+                });
+
+                const data = await response.json();
+                let replyText = "দুঃখিত ভাই, এই মুহূর্তে এআই রেসপন্স পেতে একটু সমস্যা হচ্ছে। একটু পরে আবার ট্রাই করুন!";
+
+                if (data.candidates && data.candidates[0].content.parts[0].text) {
+                    replyText = data.candidates[0].content.parts[0].text;
                 }
 
                 aiMsgDiv.className = "message ai-message";
@@ -366,7 +377,13 @@
                 }
 
                 speakText(replyText);
-            }, 600);
+
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                aiMsgDiv.className = "message ai-message";
+                aiMsgDiv.innerHTML = "নেটওয়ার্কের সমস্যার কারণে এআই কানেক্ট করা যায়নি ভাই!";
+                scrollToBottom();
+            }
         }
 
         function formatMessageText(text) {
