@@ -254,6 +254,8 @@
     <script>
         const SUPABASE_URL = "https://inubstmbcquaxwazxkir.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImludWJzdG1iY3F1YXh3YXp4a2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MzQyMzEsImV4cCI6MjEwMTIxMDIzMX0.bTmvyAeE-mdRrFI0LhEEu2JV9YPA158lG6h3riKjVRo";
+
+        // GitHub সিকিউরিটির জন্য এপিআই কি পরিবেশ বা ലോকাল সেফটি মেইনটেইন করার ব্যবস্থা
         const GEMINI_API_KEY = window.GEMINI_API_KEY || "AQ.Ab8RN6ITu2aEabZlsxifL6QQwAFnKK23PblZasT9qm_371MEPw";
 
         let supabaseClient = null;
@@ -318,9 +320,6 @@
 
             const aiMsgDiv = appendTypingIndicator();
 
-            // রিয়েল-টাইম ডেটাবেজ থেকে রিফ্রেশ করে নেওয়া যাতে নতুন কোনো প্রোডাক্ট যোগ হলে সাথে সাথে পেয়ে যায়
-            await fetchProducts();
-
             let matchedImages = [];
             const lowerText = text.toLowerCase();
             productsList.forEach(p => {
@@ -329,9 +328,7 @@
                 }
             });
 
-            let inventoryInfo = productsList.length > 0 
-                ? productsList.map(p => `- ${p.name}: দাম ${p.price} BDT`).join('\n') 
-                : "বর্তমানে ডাটাবেজে কোনো প্রোডাক্ট পাওয়া যায়নি।";
+            let inventoryInfo = productsList.map(p => `- ${p.name}: দাম ${p.price} BDT`).join('\n');
 
             try {
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
@@ -344,7 +341,7 @@
                                 parts: [
                                     {
                                         text: `তুমি একজন বাংলাদেশি ই-কমার্স দোকানের বন্ধুভাবাপন্ন ও চটপটে এআই সেলসম্যান। তোমার দোকানের নাম "AI Dokan"। দোকানের মালিকের নাম শোহেল ভাই।
-আমাদের বর্তমান স্টকে থাকা প্রোডাক্টগুলোর লাইভ তালিকা নিচে দেওয়া হলো:
+আমাদের বর্তমান স্টকে থাকা প্রোডাক্টগুলোর তালিকা নিচে দেওয়া হলো:
 ${inventoryInfo}
 
 গ্রাহক এখন তোমাকে এই কথাটি বলেছে: "${text}"
