@@ -29,7 +29,7 @@ fetchProducts();
 function startVoiceRecognition() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-        alert("আপনার ব্রাউজার ভয়েস রিকগনিশন সাপোর্ট করে না!");
+        alert("আপনার ব্রাউজার ভয়েস রিকগনিশন সাপোর্ট করে না!");
         return;
     }
 
@@ -45,7 +45,7 @@ function startVoiceRecognition() {
         const speechToText = event.results[0][0].transcript;
         document.getElementById('user-input').value = speechToText;
         micBtn.classList.remove('listening');
-        sendMessage(); // অটো মেসেজ সেন্ড হয়ে যাবে
+        sendMessage(); // অটো মেসেজ সেন্ড হয়ে যাবে
     };
 
     recognition.onerror = function() {
@@ -110,7 +110,7 @@ async function sendMessage() {
     let inventoryInfo = productsList.map(p => `- ${p.name}: দাম ${p.price} BDT`).join('\n');
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -145,12 +145,14 @@ ${inventoryInfo}
         }
 
         aiMsgDiv.className = "message ai-message";
-        aiMsgDiv.innerHTML = formatMessageText(replyText);
-        scrollToBottom();
-
-        if (matchedImages.length > 0) {
-            appendImagesToMessage(aiMsgDiv, matchedImages);
-        }
+        aiMsgDiv.innerHTML = ""; 
+        
+        typeWriterEffect(aiMsgDiv, replyText, 15, () => {
+            scrollToBottom();
+            if (matchedImages.length > 0) {
+                appendImagesToMessage(aiMsgDiv, matchedImages);
+            }
+        });
 
         speakText(replyText);
 
@@ -160,6 +162,25 @@ ${inventoryInfo}
         aiMsgDiv.innerHTML = "নেটওয়ার্কের সমস্যার কারণে এআই কানেক্ট করা যায়নি ভাই!";
         scrollToBottom();
     }
+}
+
+// টাইপরাইটার ইফেক্ট ফাংশন
+function typeWriterEffect(element, text, speed, callback) {
+    let i = 0;
+    element.innerHTML = "";
+    
+    function typing() {
+        if (i < text.length) {
+            element.innerHTML = formatMessageText(text.substring(0, i + 1));
+            scrollToBottom();
+            i += 2; 
+            setTimeout(typing, speed);
+        } else {
+            element.innerHTML = formatMessageText(text);
+            if (callback) callback();
+        }
+    }
+    typing();
 }
 
 function formatMessageText(text) {
