@@ -1,6 +1,6 @@
 const SUPABASE_URL = "https://inubstmbcquaxwazxkir.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImludWJzdG1iY3F1YXh3YXp4a2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MzQyMzEsImV4cCI6MjEwMTIxMDIzMX0.bTmvyAeE-mdRrFI0LhEEu2JV9YPA158lG6h3riKjVRo";
-const GEMINI_API_KEY = "AIzaSyDTXnZRL3Nmw3MeOd5m8N62VGh_TqD5Bnw";
+const GEMINI_API_KEY = "AQ.Ab8RN6JMK4ZiC9wmsRmBoZ_meUaPIMgjFQuRCg9Cab9dViYzug";
 
 let supabaseClient = null;
 let productsList = [];
@@ -110,7 +110,8 @@ async function sendMessage() {
     let inventoryInfo = productsList.map(p => `- ${p.name}: দাম ${p.price} BDT`).join('\n');
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        // এখানে মডেলের নাম gemini-3.6-flash সেট করা হয়েছে
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
