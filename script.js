@@ -1,7 +1,6 @@
 const SUPABASE_URL = "https://inubstmbcquaxwazxkir.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImludWJzdG1iY3F1YXh3YXp4a2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MzQyMzEsImV4cCI6MjEwMTIxMDIzMX0.bTmvyAeE-mdRrFI0LhEEu2JV9YPA158lG6h3riKjVRo";
 
-// আপনার দেওয়া জেমিনি এপিআই কি
 const GEMINI_API_KEY = "AIzaSyDTXnZRL3Nmw3MeOd5m8N62VGh_TqD5Bnw";
 
 let supabaseClient = null;
@@ -89,14 +88,13 @@ function handleKeyPress(event) {
     }
 }
 
-// আসল Gemini AI API ব্যবহার করে মানুষের মতো কথা বলানোর ফাংশন
+// সরাসরি জেমিনি এআই থেকে সব উত্তর নিয়ে আসার ফাংশন (কোনো হার্ডকোড ছাড়া)
 async function getGeminiAIResponse(userText, productContext) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     
-    // এআইকে সিস্টেম নির্দেশিকা দিয়ে দেওয়া হচ্ছে যেন সে শোহেল ভাইয়ের পারফেক্ট সেলসম্যান হয়
-    const systemInstruction = "তুমি শোহেল ভাইয়ের ই-কমার্স শপের একজন অত্যন্ত প্রফেশনাল, বিনয়ী এবং স্মার্ট সেলসম্যান। কাস্টমার সাধারণ কথা (যেমন কেমন আছো, সালাম, হাই-হ্যালো) বললে খুব সুন্দর ও হাসিমুখে বাংলায় তার জবাব দেবে। আর যদি কাস্টমার কোনো পণ্যের কথা বলে বা আমাদের ডাটাবেজে থাকা প্রduct এর প্রসঙ্গ আসে, তবে নিচের প্রডাক্ট লিস্ট থেকে তথ্য নিয়ে তাকে সাহায্য করবে।";
+    const systemInstruction = "তুমি শোহেল ভাইয়ের ই-কমার্স শপের একজন অত্যন্ত প্রফেশনাল, বিনয়ী এবং হাসিখুশি স্মার্ট সেলসম্যান। কাস্টমার যেকোনো সাধারণ কথা (যেমন কেমন আছো, হাই, হ্যালো, কেমন আছেন) বললে একদম স্বাভাবিক মানুষের মতো বাংলায় মিষ্টি উত্তর দেবে। আর যদি কাস্টমার কোনো পণ্যের নাম বা দাম জানতে চায়, তবে নিচের প্রডাক্ট লিস্ট থেকে তথ্য নিয়ে তাকে সাহায্য করবে। কোনো উত্তর নিজে থেকে বানিয়ে কোড করে আটকে রাখবে না, পুরοটাই জেমিনি এআই ব্রেইন দিয়ে ন্যাচারাল উত্তর দেবে।";
     
-    const prompt = `${systemInstruction}\n\nবর্তমান শপের প্রডাক্ট ডাটাবেজ:\n${productContext}\n\nকাস্টমারের মেসেজ: "${userText}"\n\nসেলসম্যান হিসেবে একদম স্বাভাবিক ও প্রীতিকর বাংলায় উত্তর দাও:`;
+    const prompt = `${systemInstruction}\n\nবর্তমান শপের প্রডাক্ট ডাটাবেজ:\n${productContext}\n\nকাস্টমারের মেসেজ: "${userText}"`;
 
     const requestBody = {
         contents: [{
@@ -112,15 +110,16 @@ async function getGeminiAIResponse(userText, productContext) {
         });
         
         const data = await response.json();
-        if (data.candidates && data.candidates[0].content.parts[0].text) {
+        if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
             return data.candidates[0].content.parts[0].text.trim();
+        } else {
+            console.error("Gemini Structure Error:", data);
+            return "দুঃখিত ভাই, এই মুহূর্তে এআই ব্রেইন থেকে রেসপন্স পেতে একটু সমস্যা হচ্ছে। আবার চেষ্টা করুন!";
         }
     } catch (error) {
         console.error("Gemini API Error:", error);
+        return "নেটওয়ার্ক কানেকশনে সমস্যা হচ্ছে ভাই। দয়া করে ইন্টারনেট চেক করুন।";
     }
-
-    // যদি কোনো কারণে এআই কানেক্ট না হয়, তবে সাধারণ ফলব্যাক উত্তর
-    return `আপনার কথাটি বুঝতে পেরেছি শোহেল ভাই। আমাদের শপে চমৎকার সব কালেকশন রয়েছে। বলুন কী দেখতে চান?`;
 }
 
 async function sendMessage() {
@@ -134,30 +133,21 @@ async function sendMessage() {
     const aiMsgDiv = appendTypingIndicator();
 
     let matchedImages = [];
-    let matchedProducts = [];
     const lowerText = text.toLowerCase();
     
-    // প্রডাক্ট ম্যাচিং চেক করা
+    // প্রডাক্ট ম্যাচ করে ছবি বা ডাটা বের করার লজিক
     productsList.forEach(p => {
         if (p.name && (lowerText.includes(p.name.toLowerCase()) || p.name.toLowerCase().includes(lowerText))) {
-            matchedProducts.push(p);
             if (p.image_url_1) matchedImages.push(p.image_url_1);
         }
     });
 
-    // সুপাবেজ থেকে পাওয়া প্রডাক্টগুলোর একটি ছোট সামারি টেক্সট তৈরি করা যেন জেমিনি সেটা বুঝতে পারে
-    let productContextSummary = "কোনো নির্দিষ্ট প্রডাক্ট ম্যাচ করেনি।";
+    let productContextSummary = "বর্তমানে কোনো নির্দিষ্ট প্রোডাক্ট ম্যাচ করেনি। তবে শপে বিভিন্ন পণ্য আছে।";
     if (productsList.length > 0) {
-        productContextSummary = productsList.map(p => `নাম: ${p.name}, দাম: ${p.price} BDT, বিবরণ: ${p.description || 'নেই'}`).join("; ");
+        productContextSummary = productsList.map(p => `প্রোডাক্ট নাম: ${p.name}, মূল্য: ${p.price} BDT, বিবরণ: ${p.description || 'নেই'}`).join("; ");
     }
 
-    if (matchedProducts.length > 0) {
-        matchedProducts.forEach(p => {
-            if (p.image_url_1) matchedImages.push(p.image_url_1);
-        });
-    }
-
-    // জেমিনি এআই থেকে স্মার্ট উত্তর নিয়ে আসা
+    // সরাসরি জেমিনি এআই এপিআই কল করা হচ্ছে
     let replyText = await getGeminiAIResponse(text, productContextSummary);
 
     aiMsgDiv.className = "message ai-message";
