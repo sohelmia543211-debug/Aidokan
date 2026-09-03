@@ -1,7 +1,8 @@
 const SUPABASE_URL = "https://inubstmbcquaxwazxkir.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImludWJzdG1iY3F1YXh3YXp4a2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MzQyMzEsImV4cCI6MjEwMTIxMDIzMX0.bTmvyAeE-mdRrFI0LhEEu2JV9YPA158lG6h3riKjVRo";
 
-const GEMINI_API_KEY = "AIzaSyDTXnZRL3Nmw3MeOd5m8N62VGh_TqD5Bnw";
+// আপনার নতুন জেনারেট করা এপিআই কি এখানে বসানো হলো
+const GEMINI_API_KEY = "AIzaSyAQ.Ab8RN6I8q0ti81rt1lFIwmY8AdtBO_Rk6KDGtUDJqI_aVtIysw";
 
 let supabaseClient = null;
 let productsList = [];
@@ -88,11 +89,11 @@ function handleKeyPress(event) {
     }
 }
 
-// সরাসরি জেমিনি এআই থেকে সব উত্তর নিয়ে আসার ফাংশন (কোনো হার্ডকোড ছাড়া)
+// সরাসরি জেমিনি এআই থেকে সব উত্তর নিয়ে আসার ফাংশন
 async function getGeminiAIResponse(userText, productContext) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     
-    const systemInstruction = "তুমি শোহেল ভাইয়ের ই-কমার্স শপের একজন অত্যন্ত প্রফেশনাল, বিনয়ী এবং হাসিখুশি স্মার্ট সেলসম্যান। কাস্টমার যেকোনো সাধারণ কথা (যেমন কেমন আছো, হাই, হ্যালো, কেমন আছেন) বললে একদম স্বাভাবিক মানুষের মতো বাংলায় মিষ্টি উত্তর দেবে। আর যদি কাস্টমার কোনো পণ্যের নাম বা দাম জানতে চায়, তবে নিচের প্রডাক্ট লিস্ট থেকে তথ্য নিয়ে তাকে সাহায্য করবে। কোনো উত্তর নিজে থেকে বানিয়ে কোড করে আটকে রাখবে না, পুরοটাই জেমিনি এআই ব্রেইন দিয়ে ন্যাচারাল উত্তর দেবে।";
+    const systemInstruction = "তুমি শোহেল ভাইয়ের ই-কমার্স শপের একজন অত্যন্ত প্রফেশনাল, বিনয়ী এবং হাসিখুশি স্মার্ট সেলসম্যান। কাস্টমার যেকোনো সাধারণ কথা (যেমন কেমন আছো, হাই, হ্যালো, কেমন আছেন) বললে একদম স্বাভাবিক মানুষের মতো বাংলায় মিষ্টি উত্তর দেবে। আর যদি কাস্টমার কোনো পণ্যের নাম বা দাম জানতে চায়, তবে নিচের প্রডাক্ট লিস্ট থেকে তথ্য নিয়ে তাকে সাহায্য করবে। কোনো উত্তর নিজে থেকে বানিয়ে কোড করে আটকে রাখবে না, পুরোটা জেমিনি এআই ব্রেইন দিয়ে ন্যাচারাল উত্তর দেবে।";
     
     const prompt = `${systemInstruction}\n\nবর্তমান শপের প্রডাক্ট ডাটাবেজ:\n${productContext}\n\nকাস্টমারের মেসেজ: "${userText}"`;
 
@@ -118,7 +119,7 @@ async function getGeminiAIResponse(userText, productContext) {
         }
     } catch (error) {
         console.error("Gemini API Error:", error);
-        return "নেটওয়ার্ক কানেকশনে সমস্যা হচ্ছে ভাই। দয়া করে ইন্টারনেট চেক করুন।";
+        return "নেটওয়ার্ক কানেকশনে সমস্যা হচ্ছে ভাই। দয়া করে ইন্টারনেট চেক করুন।";
     }
 }
 
