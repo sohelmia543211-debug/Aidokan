@@ -1,8 +1,8 @@
-import { checkAknumberIntent } from './aknumberp.js';
-
 const SUPABASE_URL = "https://inubstmbcquaxwazxkir.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImludWJzdG1iY3F1YXh3YXp4a2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MzQyMzEsImV4cCI6MjEwMTIxMDIzMX0.bTmvyAeE-mdRrFI0LhEEu2JV9YPA158lG6h3riKjVRo";
-const GEMINI_API_KEY = "AQ.Ab8RN6JMK4ZiC9wmsRmBoZ_meUaPIMgjFQuRCg9Cab9dViYzug";
+
+// আপনার দেওয়া জেমিনি এপিআই কি
+const GEMINI_API_KEY = "AIzaSyDTXnZRL3Nmw3MeOd5m8N62VGh_TqD5Bnw";
 
 let supabaseClient = null;
 let productsList = [];
@@ -89,6 +89,40 @@ function handleKeyPress(event) {
     }
 }
 
+// আসল Gemini AI API ব্যবহার করে মানুষের মতো কথা বলানোর ফাংশন
+async function getGeminiAIResponse(userText, productContext) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    
+    // এআইকে সিস্টেম নির্দেশিকা দিয়ে দেওয়া হচ্ছে যেন সে শোহেল ভাইয়ের পারফেক্ট সেলসম্যান হয়
+    const systemInstruction = "তুমি শোহেল ভাইয়ের ই-কমার্স শপের একজন অত্যন্ত প্রফেশনাল, বিনয়ী এবং স্মার্ট সেলসম্যান। কাস্টমার সাধারণ কথা (যেমন কেমন আছো, সালাম, হাই-হ্যালো) বললে খুব সুন্দর ও হাসিমুখে বাংলায় তার জবাব দেবে। আর যদি কাস্টমার কোনো পণ্যের কথা বলে বা আমাদের ডাটাবেজে থাকা প্রduct এর প্রসঙ্গ আসে, তবে নিচের প্রডাক্ট লিস্ট থেকে তথ্য নিয়ে তাকে সাহায্য করবে।";
+    
+    const prompt = `${systemInstruction}\n\nবর্তমান শপের প্রডাক্ট ডাটাবেজ:\n${productContext}\n\nকাস্টমারের মেসেজ: "${userText}"\n\nসেলসম্যান হিসেবে একদম স্বাভাবিক ও প্রীতিকর বাংলায় উত্তর দাও:`;
+
+    const requestBody = {
+        contents: [{
+            parts: [{ text: prompt }]
+        }]
+    };
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody)
+        });
+        
+        const data = await response.json();
+        if (data.candidates && data.candidates[0].content.parts[0].text) {
+            return data.candidates[0].content.parts[0].text.trim();
+        }
+    } catch (error) {
+        console.error("Gemini API Error:", error);
+    }
+
+    // যদি কোনো কারণে এআই কানেক্ট না হয়, তবে সাধারণ ফলব্যাক উত্তর
+    return `আপনার কথাটি বুঝতে পেরেছি শোহেল ভাই। আমাদের শপে চমৎকার সব কালেকশন রয়েছে। বলুন কী দেখতে চান?`;
+}
+
 async function sendMessage() {
     const inputField = document.getElementById('user-input');
     const text = inputField.value.trim();
@@ -100,81 +134,43 @@ async function sendMessage() {
     const aiMsgDiv = appendTypingIndicator();
 
     let matchedImages = [];
+    let matchedProducts = [];
     const lowerText = text.toLowerCase();
     
+    // প্রডাক্ট ম্যাচিং চেক করা
     productsList.forEach(p => {
-        if (p.name && lowerText.includes(p.name.toLowerCase())) {
+        if (p.name && (lowerText.includes(p.name.toLowerCase()) || p.name.toLowerCase().includes(lowerText))) {
+            matchedProducts.push(p);
             if (p.image_url_1) matchedImages.push(p.image_url_1);
         }
     });
 
-    let inventoryInfo = productsList.map(p => `- ${p.name}: দাম ${p.price} BDT`).join('\n');
-
-    try {
-        let porisoyReply = checkAknumberIntent(text);
-
-        if (porisoyReply) {
-            aiMsgDiv.className = "message ai-message";
-            aiMsgDiv.innerHTML = ""; 
-            typeWriterEffect(aiMsgDiv, porisoyReply, 15, () => {
-                scrollToBottom();
-                if (matchedImages.length > 0) appendImagesToMessage(aiMsgDiv, matchedImages);
-            });
-            speakText(porisoyReply);
-            return;
-        }
-
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [
-                    {
-                        role: "user",
-                        parts: [
-                            {
-                                text: `তুমি একজন বাংলাদেশি ই-কমার্স দোকানের বন্ধুভাবাপন্ন ও চটপটে এআই সেলসম্যান। তোমার দোকানের নাম "AI Dokan"। দোকানের মালিকের নাম শোহেল ভাই।
-আমাদের বর্তমান স্টকে থাকা প্রোডাক্টগুলোর তালিকা নিচে দেওয়া হলো:
-${inventoryInfo}
-
-গ্রাহক এখন তোমাকে এই কথাটি বলেছে: "${text}"
-
-নির্দেশনা:
-১. গ্রাহক যেভাবে কথা বলুক না কেন, তুমি একজন চমৎকার স্মার্ট সেলসম্যানের মতো তার কথার উত্তর দাও।
-২. যদি সে কোনো নির্দিষ্ট প্রোডাক্ট চায় এবং সেটি স্টকে থাকে, তাহলে তার দাম ও বিবরণসহ বুঝিয়ে বলো।
-৩. উত্তরটি সাবলীল বাংলায় এবং সংক্ষিপ্তভাবে দাও।`
-                            }
-                        ]
-                    }
-                ]
-            })
-        });
-
-        const data = await response.json();
-        let replyText = "দুঃখিত ভাই, এই মুহূর্তে এআই রেসপন্স পেতে একটু সমস্যা হচ্ছে। একটু পরে আবার ট্রাই করুন!";
-
-        if (data.candidates && data.candidates[0].content.parts[0].text) {
-            replyText = data.candidates[0].content.parts[0].text;
-        }
-
-        aiMsgDiv.className = "message ai-message";
-        aiMsgDiv.innerHTML = ""; 
-        
-        typeWriterEffect(aiMsgDiv, replyText, 15, () => {
-            scrollToBottom();
-            if (matchedImages.length > 0) {
-                appendImagesToMessage(aiMsgDiv, matchedImages);
-            }
-        });
-
-        speakText(replyText);
-
-    } catch (error) {
-        console.error("Gemini API Error:", error);
-        aiMsgDiv.className = "message ai-message";
-        aiMsgDiv.innerHTML = "নেটওয়ার্কের সমস্যার কারণে এআই কানেক্ট করা যায়নি ভাই!";
-        scrollToBottom();
+    // সুপাবেজ থেকে পাওয়া প্রডাক্টগুলোর একটি ছোট সামারি টেক্সট তৈরি করা যেন জেমিনি সেটা বুঝতে পারে
+    let productContextSummary = "কোনো নির্দিষ্ট প্রডাক্ট ম্যাচ করেনি।";
+    if (productsList.length > 0) {
+        productContextSummary = productsList.map(p => `নাম: ${p.name}, দাম: ${p.price} BDT, বিবরণ: ${p.description || 'নেই'}`).join("; ");
     }
+
+    if (matchedProducts.length > 0) {
+        matchedProducts.forEach(p => {
+            if (p.image_url_1) matchedImages.push(p.image_url_1);
+        });
+    }
+
+    // জেমিনি এআই থেকে স্মার্ট উত্তর নিয়ে আসা
+    let replyText = await getGeminiAIResponse(text, productContextSummary);
+
+    aiMsgDiv.className = "message ai-message";
+    aiMsgDiv.innerHTML = ""; 
+    
+    typeWriterEffect(aiMsgDiv, replyText, 15, () => {
+        scrollToBottom();
+        if (matchedImages.length > 0) {
+            appendImagesToMessage(aiMsgDiv, matchedImages);
+        }
+    });
+
+    speakText(replyText);
 }
 
 function typeWriterEffect(element, text, speed, callback) {
@@ -242,9 +238,3 @@ function scrollToBottom() {
     const chatContainer = document.getElementById('chat-container');
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
-
-// উইন্ডোতে ফাংশনগুলো গ্লোবালি অ্যাটাচ করে দেওয়া হলো যাতে HTML থেকে onclick কাজ করে
-window.toggleVoice = toggleVoice;
-window.startVoiceRecognition = startVoiceRecognition;
-window.handleKeyPress = handleKeyPress;
-window.sendMessage = sendMessage;
