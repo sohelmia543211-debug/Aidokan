@@ -1,6 +1,7 @@
+import { checkPorisoyIntent } from './porisoy_1_ottor.js';
+
 const SUPABASE_URL = "https://inubstmbcquaxwazxkir.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImludWJzdG1iY3F1YXh3YXp4a2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MzQyMzEsImV4cCI6MjEwMTIxMDIzMX0.bTmvyAeE-mdRrFI0LhEEu2JV9YPA158lG6h3riKjVRo";
-const GEMINI_API_KEY = "AQ.Ab8RN6JMK4ZiC9wmsRmBoZ_meUaPIMgjFQuRCg9Cab9dViYzug";
 
 let supabaseClient = null;
 let productsList = [];
@@ -34,7 +35,7 @@ function startVoiceRecognition() {
     }
 
     const recognition = new SpeechRecognition();
-    recognition.lang = 'bn-BD'; // বাংলা ভাষা
+    recognition.lang = 'bn-BD'; 
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
@@ -45,7 +46,7 @@ function startVoiceRecognition() {
         const speechToText = event.results[0][0].transcript;
         document.getElementById('user-input').value = speechToText;
         micBtn.classList.remove('listening');
-        sendMessage(); // অটো মেসেজ সেন্ড হয়ে যাবে
+        sendMessage(); 
     };
 
     recognition.onerror = function() {
@@ -72,7 +73,7 @@ function toggleVoice() {
     }
 }
 
-// ২. টেক্সট টু স্পিচ (জেমিনির উত্তর রিয়েল-টাইম মুখে বলে শোনানো)
+// ২. টেক্সট টু স্পিচ (এআই-এর উত্তর মুখে বলে শোনানো)
 function speakText(text) {
     if (!isVoiceEnabled) return;
     window.speechSynthesis.cancel();
@@ -101,48 +102,45 @@ async function sendMessage() {
 
     let matchedImages = [];
     const lowerText = text.toLowerCase();
+    
+    // প্রোডাক্ট ম্যাচিং এবং নির্দিষ্ট প্রোডাক্ট বা দাম খোঁজা
+    let foundProduct = null;
     productsList.forEach(p => {
         if (p.name && lowerText.includes(p.name.toLowerCase())) {
+            foundProduct = p;
             if (p.image_url_1) matchedImages.push(p.image_url_1);
         }
     });
 
-    let inventoryInfo = productsList.map(p => `- ${p.name}: দাম ${p.price} BDT`).join('\n');
+    let replyText = "";
 
-    try {
-        // এখানে মডেলের নাম gemini-3.6-flash সেট করা হয়েছে
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [
-                    {
-                        role: "user",
-                        parts: [
-                            {
-                                text: `তুমি একজন বাংলাদেশি ই-কমার্স দোকানের বন্ধুভাবাপন্ন ও চটপটে এআই সেলসম্যান। তোমার দোকানের নাম "AI Dokan"। দোকানের মালিকের নাম শোহেল ভাই।
-আমাদের বর্তমান স্টকে থাকা প্রোডাক্টগুলোর তালিকা নিচে দেওয়া হলো:
-${inventoryInfo}
+    setTimeout(() => {
+        // আলাদা ফাইল থেকে পরিচয় বা হাই-হ্যালো চেক করা
+        let porisoyReply = checkPorisoyIntent(text);
 
-গ্রাহক এখন তোমাকে এই কথাটি বলেছে: "${text}"
-
-নির্দেশনা:
-১. গ্রাহক যেভাবে কথা বলুক না কেন (বাংলা, বাংলিশ বা আঞ্চলিক ভাষা), তুমি একজন চমৎকার স্মার্ট সেলসম্যানের মতো তার কথার উত্তর দাও।
-২. যদি সে কোনো নির্দিষ্ট প্রোডাক্ট চায় এবং সেটি স্টকে থাকে, তাহলে তার দাম ও বিবরণসহ সুন্দরভাবে বুঝিয়ে বলো।
-৩. যদি স্টকে না থাকে, তবে বিনীতভাবে অন্য প্রোডাক্ট বা বিকল্প সাজেস্ট করো।
-৪. উত্তরটি সাবলীল বাংলায় (বা বাংলিশে গ্রাহকের স্টাইলে) এবং সংক্ষিপ্তভাবে দাও।`
-                            }
-                        ]
-                    }
-                ]
-            })
-        });
-
-        const data = await response.json();
-        let replyText = "দুঃখিত ভাই, এই মুহূর্তে এআই রেসপন্স পেতে একটু সমস্যা হচ্ছে। একটু পরে আবার ট্রাই করুন!";
-
-        if (data.candidates && data.candidates[0].content.parts[0].text) {
-            replyText = data.candidates[0].content.parts[0].text;
+        if (porisoyReply) {
+            replyText = porisoyReply;
+        }
+        else if (lowerText.includes('দাম') || lowerText.includes('price') || lowerText.includes('কত')) {
+            if (foundProduct) {
+                replyText = `ভাই, আমাদের **${foundProduct.name}** এর দাম মাত্র **${foundProduct.price} BDT**! স্টক আছে **${foundProduct.stock || 'প্রচুর'}**। নিতে চাইলে অর্ডার কনফার্ম করে ফেলতে পারেন! 😊`;
+            } else {
+                let listStr = productsList.map(p => `• ${p.name} - ${p.price} BDT`).join('\n');
+                replyText = `কোন প্রোডাক্টটার দাম জানতে চান ভাই? আমাদের স্টকে এগুলো আছে:\n${listStr}`;
+            }
+        } 
+        else if (lowerText.includes('ডেলিভারি') || lowerText.includes('delivery') || lowerText.includes('ক্যাশ অন') || lowerText.includes('cod')) {
+            replyText = `অবশ্যই ভাই! আমাদের সারা বাংলাদেশে ক্যাশ অন ডেলিভারি (COD) সুবিধা রয়েছে। ঢাকার ভেতরে ডেলিভারি চার্জ ৬০ টাকা এবং ঢাকার বাইরে ১২০ টাকা। বলুন কোন প্রোডাক্টটি পাঠাবো?`;
+        } 
+        else if (lowerText.includes('তালিকা') || lowerText.includes('লিস্ট') || lowerText.includes('product') || lowerText.includes('পণ্য') || lowerText.includes('কী আছে')) {
+            let listStr = productsList.map(p => `• **${p.name}** - দাম: ${p.price} BDT (স্টক: ${p.stock || 'আছে'})`).join('\n');
+            replyText = `শোহেল ভাইয়ের শপের সেরা কালেকশনগুলো দেখে নিন:\n${listStr}\n\nআপনার পছন্দমতো কোনটা লাগবে বলুন!`;
+        } 
+        else if (foundProduct) {
+            replyText = `বাহ! দারুন পছন্দ ভাই। **${foundProduct.name}-এর** দাম মাত্র **${foundProduct.price} BDT**। এটা অর্ডার করতে চাইলে আপনার ঠিকানা ও ফোন নম্বর দিন!`;
+        } 
+        else {
+            replyText = `কথাটি ঠিক বুঝতে পারিনি ভাই! আমাদের কোনো নির্দিষ্ট প্রোডাক্ট বা দাম সম্পর্কে জানতে চাইলে বলুন, অথবা লিখে জানান কী লাগবে!`;
         }
 
         aiMsgDiv.className = "message ai-message";
@@ -156,13 +154,7 @@ ${inventoryInfo}
         });
 
         speakText(replyText);
-
-    } catch (error) {
-        console.error("Gemini API Error:", error);
-        aiMsgDiv.className = "message ai-message";
-        aiMsgDiv.innerHTML = "নেটওয়ার্কের সমস্যার কারণে এআই কানেক্ট করা যায়নি ভাই!";
-        scrollToBottom();
-    }
+    }, 600);
 }
 
 // টাইপরাইটার ইফেক্ট ফাংশন
@@ -231,3 +223,9 @@ function scrollToBottom() {
     const chatContainer = document.getElementById('chat-container');
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
+
+// গ্লোবাল উইন্ডো স্কোপে ফাংশনগুলো বাইন্ড করা যাতে HTML থেকে কল করা যায়
+window.startVoiceRecognition = startVoiceRecognition;
+window.toggleVoice = toggleVoice;
+window.handleKeyPress = handleKeyPress;
+window.sendMessage = sendMessage;

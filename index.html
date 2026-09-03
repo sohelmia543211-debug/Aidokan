@@ -26,13 +26,13 @@
     </div>
 
     <div id="input-container">
-        <!-- ভয়েস ইনপুট বাটন (কথা বলে টেক্সট তোলার জন্য) -->
+        <!-- ভয়েস ইনপুট বাটন (কথা বলে টেক্সট তোলার জন্য) -->
         <button id="mic-btn" class="mic-btn" onclick="startVoiceRecognition()" title="কথা বলুন">🎙️</button>
         <input type="text" id="user-input" placeholder="আপনার পণ্যের নাম লিখুন বা মাইকে বলুন..." onkeypress="handleKeyPress(event)">
         <button id="send-btn" onclick="sendMessage()">প্রেরণ করুন</button>
     </div>
 
-    <!-- Custom JS File -->
-    <script src="script.js"></script>
+    <!-- Custom JS File with Module Support -->
+    <script type="module" src="script.js"></script>
 </body>
 </html>
