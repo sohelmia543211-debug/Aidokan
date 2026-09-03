@@ -242,3 +242,9 @@ function scrollToBottom() {
     const chatContainer = document.getElementById('chat-container');
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
+
+// উইন্ডোতে ফাংশনগুলো গ্লোবালি অ্যাটাচ করে দেওয়া হলো যাতে HTML থেকে onclick কাজ করে
+window.toggleVoice = toggleVoice;
+window.startVoiceRecognition = startVoiceRecognition;
+window.handleKeyPress = handleKeyPress;
+window.sendMessage = sendMessage;
