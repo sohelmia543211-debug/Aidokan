@@ -1,43 +1,34 @@
-// Supabase SDK Import
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-// Apnar Supabase Credentials Boshan
-const SUPABASE_URL = 'https://YOUR_SUPABASE_URL.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 document.addEventListener('DOMContentLoaded', async () => {
-    // URL param parsing & cleaning
+    // URL থেকে item_code বা id বের করা এবং ক্লিন করা
     const urlParams = new URLSearchParams(window.location.search);
     let rawId = urlParams.get('id') || '';
     
-    // Extracted clean item_code (e.g., 56587)
     const cleanId = rawId.replace(/[^a-zA-Z0-9_-]/g, '').trim();
 
     if (!cleanId) {
-        renderError("Item ID পাওয়া যায়নি!");
+        renderError("Item ID পাওয়া যায়নি!");
         return;
     }
 
     try {
-        // 1. Supabase 'gigs' table theke item_code diye fetch
-        const { data: gig, error: gigError } = await supabase
+        // Supabase 'gigs' টেবিল থেকে item_code দিয়ে ডাটা ফেচ করা
+        const { data: gig, error: gigError } = await supabaseClient
             .from('gigs')
             .select('*')
             .eq('item_code', cleanId)
             .single();
 
         if (gigError || !gig) {
-            renderError("তথ্য পাওয়া যায়নি অথবা পণ্যটি নিবন্ধিত নয়।");
+            renderError("তথ্য পাওয়া যায়নি অথবা পণ্যটি নিবন্ধিত নয়।");
             return;
         }
 
-        // 2. Dynamic Merchant / User details fetch from 'users' table
-        let merchantName = 'অফিসিয়াল মার্চেন্ট';
+        // ব্যবহারকারীর (Merchant) তথ্য 'users' টেবিল থেকে আনা
+        let merchantName = 'TopTopBD Official';
         let merchantPhone = null;
 
         if (gig.user_id) {
-            const { data: userData } = await supabase
+            const { data: userData } = await supabaseClient
                 .from('users')
                 .select('org_name, full_name, phone_number')
                 .eq('id', gig.user_id)
@@ -59,13 +50,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 function renderVerificationCard(gig, merchantName, merchantPhone) {
     const contentArea = document.getElementById('content-area');
 
-    // Status formatting
     const isApproved = gig.status && gig.status.toLowerCase() === 'approved';
     const statusText = isApproved ? '১০০% অরিজিনাল ও নিবন্ধিত' : 'যাচাইকরণ প্রক্রিয়াধীন';
     const statusIcon = isApproved ? 'fa-circle-check' : 'fa-clock';
-    const statusBgClass = isApproved ? '' : 'style="background: rgba(245, 158, 11, 0.2); border-color: rgba(245, 158, 11, 0.4);"' ;
+    const statusBgClass = isApproved ? '' : 'style="background: rgba(245, 158, 11, 0.2); border-color: rgba(245, 158, 11, 0.4);"';
 
-    // Created At Date Formatting
     const formattedDate = gig.created_at 
         ? new Date(gig.created_at).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' })
         : 'N/A';
