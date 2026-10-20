@@ -2,191 +2,167 @@
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>আসল নকল - ফিউচারিস্টিক ড্যাশবোর্ড</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>আসল নকল - মার্চেন্ট ড্যাশবোর্ড (White Theme)</title>
+  
+  <!-- Tailwind CSS & FontAwesome -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Supabase & QRCode SDK -->
+  <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="supabaseconfig.js"></script>
 
-  <!-- External CSS -->
+  <!-- Custom CSS -->
   <link rel="stylesheet" href="dashboardmine.css">
 </head>
-<body class="min-h-screen pb-12 relative overflow-x-hidden">
+<body class="min-h-screen pb-16 px-3 sm:px-6 relative">
 
-  <!-- Cyberpunk Background Orbs -->
-  <div class="absolute -top-40 -left-40 w-[500px] h-[500px] bg-blue-600/15 rounded-full blur-[120px] pointer-events-none"></div>
-  <div class="absolute top-1/3 -right-40 w-[500px] h-[500px] bg-cyan-600/15 rounded-full blur-[120px] pointer-events-none"></div>
+  <!-- Soft Light Background Orbs -->
+  <div class="absolute -top-48 -left-48 w-96 h-96 bg-sky-400/10 rounded-full blur-[120px] pointer-events-none"></div>
+  <div class="absolute top-1/4 -right-48 w-96 h-96 bg-blue-400/10 rounded-full blur-[120px] pointer-events-none"></div>
 
-  <!-- Top Navigation Bar -->
-  <header class="cyber-glass sticky top-0 z-50 border-b border-blue-500/20 px-4 sm:px-8 py-4 mb-8">
-    <div class="max-w-7xl mx-auto flex justify-between items-center">
-      
-      <!-- Logo & Brand -->
-      <div class="flex items-center gap-3">
-        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-cyan-400 p-0.5 shadow-lg shadow-blue-500/30">
-          <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-cyan-400 text-lg">
-            <i class="fa-solid fa-shield-halved"></i>
-          </div>
-        </div>
-        <div>
-          <h1 class="text-lg font-black tracking-wider text-white flex items-center gap-2">
-            আসল নকল <span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 border border-blue-500/40 text-cyan-400 font-mono">v20.70</span>
-          </h1>
-          <p class="text-[10px] text-emerald-400 font-mono tracking-widest"><i class="fa-solid fa-circle-dot animate-pulse"></i> SECURE QUANTUM GRID</p>
+  <!-- Top Quantum Navbar -->
+  <header class="cyber-glass-light sticky top-0 z-50 px-4 sm:px-6 py-4 mb-6 rounded-3xl mt-3 max-w-7xl mx-auto flex justify-between items-center">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-sky-600 to-cyan-400 p-0.5 shadow-md shadow-sky-500/20">
+        <div class="w-full h-full bg-white rounded-[14px] flex items-center justify-center text-sky-600 text-lg">
+          <i class="fa-solid fa-shield-halved"></i>
         </div>
       </div>
-
-      <!-- User Mini Profile & Logout -->
-      <div class="flex items-center gap-4">
-        <div class="hidden sm:flex items-center gap-3 bg-slate-900/60 border border-slate-800 px-3.5 py-1.5 rounded-2xl">
-          <img id="headerAvatar" src="https://via.placeholder.com/40" class="w-8 h-8 rounded-xl object-cover border border-cyan-500/40">
-          <div class="text-left">
-            <p id="headerName" class="text-xs font-bold text-white leading-tight">লোড হচ্ছে...</p>
-            <p class="text-[9px] text-gray-400 font-mono">AUTHORIZED</p>
-          </div>
-        </div>
-
-        <button onclick="handleLogout()" class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
-          <i class="fa-solid fa-power-off"></i> <span class="hidden sm:inline">লগআউট</span>
-        </button>
+      <div>
+        <h1 class="text-base font-black tracking-wider text-slate-900 flex items-center gap-2">
+          ASOL NOKOL <span class="text-[10px] px-2 py-0.5 rounded-full cyber-badge-light font-mono">v20.70</span>
+        </h1>
+        <p class="text-[9px] text-emerald-600 font-mono tracking-wider font-bold"><i class="fa-solid fa-circle-dot animate-pulse"></i> SECURE WHITE GRID</p>
       </div>
+    </div>
 
+    <div class="flex items-center gap-3">
+      <div class="hidden sm:flex items-center gap-2.5 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+        <span id="navUserPhone" class="text-xs font-mono text-slate-700">01995095106</span>
+      </div>
+      <button onclick="handleLogout()" class="px-3.5 py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+        <i class="fa-solid fa-power-off"></i> <span class="hidden sm:inline">লগআউট</span>
+      </button>
     </div>
   </header>
 
   <!-- Main Workspace -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 relative z-10">
+  <main class="max-w-7xl mx-auto space-y-6 relative z-10">
 
-    <!-- Profile Hero Section -->
-    <div class="cyber-glass rounded-3xl p-6 sm:p-8 relative overflow-hidden neon-border">
-      <div class="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+    <!-- Corporate Hero Profile Card -->
+    <div class="cyber-glass-light rounded-3xl p-6 sm:p-8 relative overflow-hidden border border-sky-100 shadow-xl">
+      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">
         
-        <div class="flex flex-col sm:flex-row items-center gap-6">
+        <div class="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-5 w-full">
           <div class="relative group">
-            <img id="profileAvatar" src="https://via.placeholder.com/120" class="relative w-28 h-28 sm:w-32 sm:h-32 rounded-3xl object-cover bg-slate-950 border-2 border-cyan-500/50 shadow-2xl">
-            <span class="absolute -bottom-2 -right-2 bg-emerald-500 text-slate-950 text-xs px-2.5 py-1 rounded-xl font-bold shadow-lg flex items-center gap-1">
-              <i class="fa-solid fa-check"></i> VERIFIED
+            <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-br from-slate-900 to-sky-950 border-2 border-sky-400/40 flex items-center justify-center text-sky-400 text-3xl shadow-xl overflow-hidden">
+              <i class="fa-solid fa-industry"></i>
+            </div>
+            <span class="absolute -bottom-2 -right-2 bg-emerald-500 text-white text-[10px] px-2 py-0.5 rounded-md font-extrabold flex items-center gap-1 shadow">
+              <i class="fa-solid fa-shield-check"></i> ACTIVE
             </span>
           </div>
           
-          <div class="text-center sm:text-left space-y-2.5">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-semibold font-mono">
-              <i class="fa-solid fa-id-badge"></i> SECURE ID: <span id="userIdText">#AN-8842</span>
+          <div class="space-y-2 w-full">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full cyber-badge-light text-xs font-mono font-bold">
+              <i class="fa-solid fa-fingerprint"></i> SECURE ID: <span id="userIdDisplay">#AN-2070</span>
             </div>
-            <h2 id="profileOrgName" class="text-2xl sm:text-4xl font-black text-white tracking-tight">প্রতিষ্ঠানের নাম লোড হচ্ছে...</h2>
-            <p id="profileCategory" class="text-xs text-gray-300 font-mono">ক্যাটাগরি: ...</p>
-            <div class="flex flex-wrap justify-center sm:justify-start gap-3 pt-1">
-              <span id="profilePhone" class="px-3 py-1 rounded-xl bg-slate-900/80 border border-slate-700 text-xs text-gray-300 font-mono">
-                <i class="fa-solid fa-phone text-blue-400 mr-1"></i> 01700000000
+            <h2 id="profileOrgName" class="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">লোড হচ্ছে...</h2>
+            <p id="profileCategory" class="text-xs text-slate-600 font-mono">ক্যাটাগরি: মার্চেন্ট কোর মডিউল</p>
+            
+            <div class="flex flex-wrap justify-center sm:justify-start gap-2 pt-1">
+              <span id="profilePhone" class="px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-700 font-mono flex items-center gap-1.5">
+                <i class="fa-solid fa-phone text-sky-600"></i> --
               </span>
-              <span id="profileReg" class="px-3 py-1 rounded-xl bg-slate-900/80 border border-slate-700 text-xs text-gray-300 font-mono">
-                <i class="fa-solid fa-file-contract text-emerald-400 mr-1"></i> রেজি: N/A
+              <span class="px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs text-emerald-600 font-mono flex items-center gap-1.5 font-bold">
+                <i class="fa-solid fa-circle-check"></i> ভেরিফাইড মার্চেন্ট
               </span>
             </div>
           </div>
         </div>
 
-        <div class="w-full md:w-auto flex justify-center md:justify-end">
-          <a href="otherpyemntmathead.html" class="w-full md:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-base shadow-xl shadow-emerald-500/25 transition flex items-center justify-center gap-3 border border-emerald-300/40">
-            <i class="fa-solid fa-credit-card text-xl"></i>
-            <span>PAY SUBSCRIPTION NOW</span>
+        <!-- Action Navigation Buttons (Separate Pages) -->
+        <div class="w-full lg:w-auto flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0">
+          <a href="create_gig.html" class="cyber-button-primary px-6 py-3.5 rounded-2xl font-extrabold text-xs sm:text-sm tracking-wide transition flex items-center justify-center gap-2.5 text-center">
+            <i class="fa-solid fa-square-plus text-base"></i> নতুন পণ্য তৈরি করুন
+          </a>
+          <a href="otherpyemntmathead.html" class="px-6 py-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2.5 shadow-sm">
+            <i class="fa-solid fa-credit-card text-sky-600"></i> সাবস্ক্রিপশন ও পেমেন্ট
           </a>
         </div>
 
       </div>
     </div>
 
-    <!-- Quick Stats Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-      <div class="cyber-glass p-5 rounded-3xl border-l-4 border-l-blue-500 space-y-1">
-        <p class="text-xs text-gray-400 font-medium uppercase tracking-wider">তৈরি করা গিগ সংখ্যা</p>
-        <p id="statGigCount" class="text-3xl font-black text-white font-mono">00</p>
-        <p class="text-[10px] text-blue-400">অ্যাক্টিভ ও পেন্ডিং গিগ</p>
+    <!-- BIG PROMINENT DOCUMENT ADD BUTTON SECTION -->
+    <div class="cyber-glass-light rounded-3xl p-6 sm:p-8 border border-amber-300/60 bg-gradient-to-r from-amber-50/50 via-white to-sky-50/50 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-lg">
+      <div class="flex items-center gap-4 text-center sm:text-left">
+        <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-600 text-2xl shrink-0 mx-auto">
+          <i class="fa-solid fa-file-shield"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-black text-slate-900">ব্যবসার ডকুমেন্টস ও লাইসেন্স পেপার্স</h3>
+          <p class="text-xs text-slate-600 mt-0.5">ট্রেড লাইসেন্স, বিএমডিসি বা প্রয়োজনীয় কাগজপত্র সাবমিট বা আপডেট করতে নিচের বড় বাটনে ক্লিক করুন।</p>
+        </div>
+      </div>
+      <a href="documents.html" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-xs sm:text-sm shadow-lg shadow-amber-500/30 transition flex items-center justify-center gap-2.5 shrink-0">
+        <i class="fa-solid fa-folder-open text-base"></i> ডকুমেন্টস পেজে যান
+      </a>
+    </div>
+
+    <!-- Telemetry Stats Grid -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="cyber-glass-light p-5 rounded-3xl border-l-4 border-l-sky-500 space-y-1.5 shadow-sm">
+        <p class="text-[11px] text-slate-500 uppercase font-bold tracking-wider">মোট পণ্য</p>
+        <p id="statGigCount" class="text-3xl font-black text-slate-900 font-mono">00</p>
+        <p class="text-[10px] text-sky-600 font-mono font-semibold">লাইভ প্রোডাক্ট রেজিস্ট্রি</p>
       </div>
       
-      <div class="cyber-glass p-5 rounded-3xl border-l-4 border-l-cyan-400 space-y-1">
-        <p class="text-xs text-gray-400 font-medium uppercase tracking-wider">প্ল্যাটফর্ম সিকিউরিটি</p>
-        <p class="text-xl font-bold text-cyan-300 mt-1"><i class="fa-solid fa-shield-check"></i> এনক্রিপ্টেড</p>
-        <p class="text-[10px] text-cyan-500">সুরক্ষিত ডাটাবেস</p>
+      <div class="cyber-glass-light p-5 rounded-3xl border-l-4 border-l-cyan-500 space-y-1.5 shadow-sm">
+        <p class="text-[11px] text-slate-500 uppercase font-bold tracking-wider">সিকিউরিটি লেভেল</p>
+        <p class="text-base font-bold text-cyan-700 font-mono mt-1"><i class="fa-solid fa-shield-halved"></i> AES-256 SAFE</p>
+        <p class="text-[10px] text-cyan-600 font-mono">সুরক্ষিত গ্রিড</p>
       </div>
       
-      <div class="cyber-glass p-5 rounded-3xl border-l-4 border-l-emerald-500 space-y-1">
-        <p class="text-xs text-gray-400 font-medium uppercase tracking-wider">অ্যাকাউন্ট স্ট্যাটাস</p>
-        <p class="text-xl font-bold text-emerald-400 mt-1"><i class="fa-solid fa-circle-check"></i> ফুললি অ্যাপ্রুভড</p>
-        <p class="text-[10px] text-emerald-500">সকল ফিচার আনলকড</p>
+      <div class="cyber-glass-light p-5 rounded-3xl border-l-4 border-l-emerald-500 space-y-1.5 shadow-sm">
+        <p class="text-[11px] text-slate-500 uppercase font-bold tracking-wider">অ্যাকাউন্ট স্ট্যাটাস</p>
+        <p class="text-base font-bold text-emerald-600 mt-1"><i class="fa-solid fa-circle-check"></i> ফুললি অ্যাপ্রুভড</p>
+        <p class="text-[10px] text-emerald-700 font-mono">সকল ফিচার আনলকড</p>
       </div>
 
-      <!-- Subscription Validity Card -->
-      <div class="cyber-glass p-5 rounded-3xl border-l-4 border-l-purple-500 relative overflow-hidden flex flex-col justify-between">
-        <div>
-          <div class="flex justify-between items-center mb-1">
-            <p class="text-xs text-gray-400 font-medium uppercase tracking-wider">সাবস্ক্রিপশন মেয়াদ</p>
-            <a href="otherpyemntmathead.html" class="text-[10px] bg-purple-600/30 hover:bg-purple-600/60 text-purple-200 border border-purple-500/50 px-2 py-0.5 rounded-lg font-bold transition">
-              রিনিউ করুন
-            </a>
-          </div>
-          <h2 id="subDaysLeft" class="text-2xl font-black text-purple-400 mt-0.5">লোড হচ্ছে...</h2>
-        </div>
-        <div class="mt-2 text-[11px] text-gray-300 space-y-0.5 font-mono">
-          <p>প্ল্যান: <span id="subPlanName" class="font-bold text-amber-400">-</span></p>
-          <p>মেয়াদ শেষ: <span id="subExpiryDate" class="font-bold text-white">-</span></p>
-        </div>
+      <div class="cyber-glass-light p-5 rounded-3xl border-l-4 border-l-purple-500 space-y-1.5 shadow-sm">
+        <p class="text-[11px] text-slate-500 uppercase font-bold tracking-wider">নেটওয়ার্ক প্রোটোকল</p>
+        <p class="text-base font-bold text-purple-700 font-mono mt-1">AI SYNC v2.7</p>
+        <p class="text-[10px] text-purple-600 font-mono">অটোমেটেড সিস্টেম</p>
       </div>
     </div>
 
-    <!-- GIG MANAGEMENT & RECYCLER VIEW SECTION -->
-    <div class="space-y-6">
-      
-      <!-- Header with Add Gig Button -->
-      <div class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-900/60 border border-slate-800 p-6 rounded-3xl">
+    <!-- Product Hub Preview Section -->
+    <div class="cyber-glass-light rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl border border-sky-100">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-4">
         <div>
-          <h3 class="text-xl font-extrabold text-white flex items-center gap-2">
-            <i class="fa-solid fa-boxes-packing text-cyan-400"></i> আমার গিগসমূহ (My Gigs Hub)
+          <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-boxes-stacked text-sky-600"></i> প্রোডাক্ট হাব (Products Hub)
           </h3>
-          <p class="text-xs text-gray-400 mt-1">আপনার সেবাবেশ ও প্রোডাক্ট গিগ তৈরি করুন এবং সেখান থেকে কিউআর কোড নিন।</p>
+          <p class="text-xs text-slate-600">আপনার তৈরি করা সমস্ত পণ্যের তালিকা এবং কিউআর কোড এখানে দেখতে পাবেন।</p>
         </div>
-
-        <a href="create_gig.html" class="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-slate-950 font-black text-sm tracking-wider shadow-lg shadow-cyan-500/20 transition flex items-center gap-2">
-          <i class="fa-solid fa-plus text-base"></i> নতুন গিগ যোগ করুন
+        <a href="create_gig.html" class="px-4 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-700 text-xs font-bold transition flex items-center gap-1.5">
+          <i class="fa-solid fa-plus"></i> নতুন পণ্য যোগ করুন
         </a>
       </div>
 
-      <!-- RecyclerView / Grid View for User Gigs -->
-      <div id="gigsRecyclerView" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Dynamic Gig Cards will be loaded here from Supabase -->
-        <div class="col-span-full text-center py-12 text-gray-400 font-mono text-sm cyber-glass rounded-3xl">
-          <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-cyan-400 block"></i> গিগসমূহ লোড হচ্ছে...
+      <!-- Grid view for Products -->
+      <div id="gigsRecyclerView" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div class="col-span-full text-center py-12 text-slate-500 text-xs font-mono cyber-glass-light rounded-2xl">
+          <i class="fa-solid fa-microchip fa-spin text-2xl mb-2 text-sky-600 block"></i> প্রোডাক্ট ডাটা সিঙ্ক্রোনাইজ হচ্ছে...
         </div>
       </div>
-
     </div>
 
   </main>
-
-  <!-- QR CODE MODAL FOR VIEWING & DOWNLOADING -->
-  <div id="qrModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
-    <div class="cyber-glass w-full max-w-sm rounded-3xl p-6 text-center relative border border-cyan-500/30">
-      <button onclick="closeQrModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-
-      <h3 id="modalGigTitle" class="text-lg font-bold text-white mb-2">গিগ QR কোড</h3>
-      
-      <div class="bg-white p-4 rounded-2xl inline-block shadow-2xl my-3">
-        <div id="modalQrBox"></div>
-      </div>
-
-      <p class="text-[11px] text-gray-400 mb-4 font-mono">SCAN TO VERIFY GIG DETAILS</p>
-
-      <button onclick="downloadModalQr()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2">
-        <i class="fa-solid fa-download"></i> PNG হিসেবে ডাউনলোড করুন
-      </button>
-    </div>
-  </div>
 
   <!-- External JS -->
   <script src="dashboardmine.js"></script>
