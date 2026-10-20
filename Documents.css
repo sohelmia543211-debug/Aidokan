@@ -1,0 +1,51 @@
+body {
+  background: #f1f5f9;
+  color: #0f172a;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow-x: hidden;
+}
+
+/* White Futuristic Glass Card */
+.cyber-glass-light {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(14, 165, 233, 0.2);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+}
+
+.cyber-input-light {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+  transition: all 0.3s ease;
+}
+
+.cyber-input-light:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 12px rgba(2, 132, 199, 0.25);
+  outline: none;
+}
+
+.cyber-file-upload {
+  border: 2px dashed #cbd5e1;
+  background: #f8fafc;
+  transition: all 0.3s ease;
+}
+
+.cyber-file-upload:hover {
+  border-color: #0284c7;
+  background: #f0f9ff;
+}
+
+.cyber-button-primary {
+  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+  color: #ffffff;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 25px rgba(14, 165, 233, 0.3);
+}
+
+.cyber-button-primary:hover {
+  box-shadow: 0 15px 30px rgba(14, 165, 233, 0.5);
+  transform: translateY(-2px);
+}

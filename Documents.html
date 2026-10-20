@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ব্যবসার ডকুমেন্টস ও ফাইল আপলোড - আসল নকল</title>
+  
+  <!-- Tailwind CSS & FontAwesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabaseconfig.js"></script>
+
+  <!-- Custom External CSS -->
+  <link rel="stylesheet" href="Documents.css">
+</head>
+<body class="min-h-screen pb-16 px-3 sm:px-6 relative flex flex-col justify-between">
+
+  <!-- Top Navigation Header -->
+  <header class="cyber-glass-light sticky top-0 z-50 px-4 sm:px-6 py-4 mb-6 rounded-3xl mt-3 max-w-4xl mx-auto flex justify-between items-center border border-sky-100 shadow-md">
+    <div class="flex items-center gap-3">
+      <a href="dashboardmine.html" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center text-sm transition">
+        <i class="fa-solid fa-arrow-left"></i>
+      </a>
+      <div>
+        <h1 class="text-sm font-black tracking-wider text-slate-900">ডকুমেন্টস ও ফাইল আপলোড</h1>
+        <p class="text-[10px] text-sky-600 font-mono font-bold"><i class="fa-solid fa-shield-halved"></i> VERIFICATION NODE v20.70</p>
+      </div>
+    </div>
+
+    <a href="dashboardmine.html" class="px-3.5 py-1.5 bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+      <i class="fa-solid fa-house"></i> ড্যাশবোর্ড
+    </a>
+  </header>
+
+  <!-- Main Document Form Workspace -->
+  <main class="max-w-4xl mx-auto w-full space-y-6 relative z-10 my-auto">
+    
+    <div class="cyber-glass-light rounded-3xl p-6 sm:p-10 border border-sky-100 shadow-xl space-y-6">
+      
+      <div class="flex items-center gap-4 border-b border-slate-200 pb-5">
+        <div class="w-14 h-14 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-600 text-2xl shrink-0">
+          <i class="fa-solid fa-folder-plus"></i>
+        </div>
+        <div>
+          <h2 class="text-xl font-black text-slate-900">ব্যবসার প্রয়োজনীয় কাগজপত্র ও ফাইল আপলোড</h2>
+          <p class="text-xs text-slate-600 mt-1">প্রোফাইল ছবি এবং আপনার সাব-ক্যাটাগরি অনুযায়ী প্রয়োজনীয় লাইসেন্স ও ডকুমেন্টস সাবমিট করুন।</p>
+        </div>
+      </div>
+
+      <!-- User Sub Category Info Banner -->
+      <div class="bg-sky-50/80 border border-sky-200/60 p-4 rounded-2xl flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <i class="fa-solid fa-layer-group text-sky-600"></i>
+          <span class="text-xs font-bold text-slate-700">আপনার সাব-ক্যাটাগরি:</span>
+        </div>
+        <span id="userSubCategoryText" class="text-xs font-mono font-black text-sky-700 bg-white px-3 py-1 rounded-xl border border-sky-200">লোড হচ্ছে...</span>
+      </div>
+
+      <!-- Form Inputs -->
+      <form id="documentForm" onsubmit="handleDocSubmit(event)" class="space-y-6">
+        
+        <!-- Profile Image Section -->
+        <div class="cyber-file-upload p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <img id="profilePreview" src="https://via.placeholder.com/80" class="w-16 h-16 rounded-2xl object-cover border-2 border-sky-400 shadow-sm">
+            <div>
+              <h4 class="text-xs font-bold text-slate-800">মার্চেন্ট প্রোফাইল ছবি *</h4>
+              <p class="text-[11px] text-slate-500">আপনার বা প্রতিষ্ঠানের লোগো/ছবি আপলোড করুন</p>
+            </div>
+          </div>
+          <input type="file" id="profileImgInput" accept="image/*" onchange="previewImage(this, 'profilePreview')" class="text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sky-100 file:text-sky-700 hover:file:bg-sky-200 cursor-pointer">
+        </div>
+
+        <!-- Dynamic Category-based Documents & Images -->
+        <div id="dynamicDocFields" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div class="col-span-full text-center py-8 text-slate-400 text-xs font-mono">
+            <i class="fa-solid fa-circle-notch fa-spin text-lg text-sky-600 block mb-1"></i> ফিল্ড লোড হচ্ছে...
+          </div>
+        </div>
+
+        <div class="pt-4">
+          <button type="submit" id="submitBtn" class="cyber-button-primary w-full py-4 rounded-2xl font-black text-xs sm:text-sm tracking-wider uppercase transition flex items-center justify-center gap-2 cursor-pointer shadow-lg">
+            <i class="fa-solid fa-cloud-arrow-up text-base"></i> সকল তথ্য ও ফাইল সাবমিট করুন
+          </button>
+        </div>
+      </form>
+
+    </div>
+
+  </main>
+
+  <footer class="text-center text-slate-400 text-[11px] font-mono mt-8">
+    ASOL NOKOL VERIFICATION SYSTEM &copy; 2070
+  </footer>
+
+  <!-- External JavaScript File -->
+  <script src="Documents.js"></script>
+</body>
+</html>

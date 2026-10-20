@@ -41,7 +41,7 @@
     <div class="flex items-center gap-3">
       <div class="hidden sm:flex items-center gap-2.5 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl">
         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-        <span id="navUserPhone" class="text-xs font-mono text-slate-700">01995095106</span>
+        <span id="navUserPhone" class="text-xs font-mono text-slate-700">--</span>
       </div>
       <button onclick="handleLogout()" class="px-3.5 py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
         <i class="fa-solid fa-power-off"></i> <span class="hidden sm:inline">লগআউট</span>
@@ -58,10 +58,12 @@
         
         <div class="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-5 w-full">
           <div class="relative group">
+            <!-- Dynamic Profile Image / Fallback Icon -->
             <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-br from-slate-900 to-sky-950 border-2 border-sky-400/40 flex items-center justify-center text-sky-400 text-3xl shadow-xl overflow-hidden">
-              <i class="fa-solid fa-industry"></i>
+              <img id="userProfileImage" src="" class="w-full h-full object-cover hidden" alt="Profile Image">
+              <i id="userFallbackIcon" class="fa-solid fa-industry"></i>
             </div>
-            <span class="absolute -bottom-2 -right-2 bg-emerald-500 text-white text-[10px] px-2 py-0.5 rounded-md font-extrabold flex items-center gap-1 shadow">
+            <span id="merchantBadge" class="absolute -bottom-2 -right-2 bg-emerald-500 text-white text-[10px] px-2 py-0.5 rounded-md font-extrabold flex items-center gap-1 shadow">
               <i class="fa-solid fa-shield-check"></i> ACTIVE
             </span>
           </div>
@@ -77,8 +79,8 @@
               <span id="profilePhone" class="px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-700 font-mono flex items-center gap-1.5">
                 <i class="fa-solid fa-phone text-sky-600"></i> --
               </span>
-              <span class="px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs text-emerald-600 font-mono flex items-center gap-1.5 font-bold">
-                <i class="fa-solid fa-circle-check"></i> ভেরিফাইড মার্চেন্ট
+              <span id="statusTag" class="px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs text-emerald-600 font-mono flex items-center gap-1.5 font-bold">
+                <i class="fa-solid fa-circle-check"></i> মার্চেন্ট অ্যাকাউন্ট
               </span>
             </div>
           </div>
@@ -97,19 +99,19 @@
       </div>
     </div>
 
-    <!-- BIG PROMINENT DOCUMENT ADD BUTTON SECTION -->
-    <div class="cyber-glass-light rounded-3xl p-6 sm:p-8 border border-amber-300/60 bg-gradient-to-r from-amber-50/50 via-white to-sky-50/50 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-lg">
+    <!-- DYNAMIC PROMINENT DOCUMENT STATUS SECTION -->
+    <div id="docBannerContainer" class="cyber-glass-light rounded-3xl p-6 sm:p-8 border border-amber-300/60 bg-gradient-to-r from-amber-50/50 via-white to-sky-50/50 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-lg">
       <div class="flex items-center gap-4 text-center sm:text-left">
-        <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-600 text-2xl shrink-0 mx-auto">
+        <div id="docBannerIcon" class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-600 text-2xl shrink-0 mx-auto">
           <i class="fa-solid fa-file-shield"></i>
         </div>
         <div>
-          <h3 class="text-lg font-black text-slate-900">ব্যবসার ডকুমেন্টস ও লাইসেন্স পেপার্স</h3>
-          <p class="text-xs text-slate-600 mt-0.5">ট্রেড লাইসেন্স, বিএমডিসি বা প্রয়োজনীয় কাগজপত্র সাবমিট বা আপডেট করতে নিচের বড় বাটনে ক্লিক করুন।</p>
+          <h3 id="docBannerTitle" class="text-lg font-black text-slate-900">ব্যবসার ডকুমেন্টস ও লাইসেন্স পেপার্স</h3>
+          <p id="docBannerSub" class="text-xs text-slate-600 mt-0.5">ট্রেড লাইসেন্স, বিএমডিসি বা প্রয়োজনীয় কাগজপত্র সাবমিট বা আপডেট করতে নিচের বাটনে ক্লিক করুন।</p>
         </div>
       </div>
-      <a href="documents.html" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-xs sm:text-sm shadow-lg shadow-amber-500/30 transition flex items-center justify-center gap-2.5 shrink-0">
-        <i class="fa-solid fa-folder-open text-base"></i> ডকুমেন্টস পেজে যান
+      <a id="docBannerBtn" href="documents.html" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-xs sm:text-sm shadow-lg shadow-amber-500/30 transition flex items-center justify-center gap-2.5 shrink-0">
+        <i class="fa-solid fa-folder-open text-base"></i> ডকুমেন্টস আপলোড করুন
       </a>
     </div>
 
@@ -129,8 +131,8 @@
       
       <div class="cyber-glass-light p-5 rounded-3xl border-l-4 border-l-emerald-500 space-y-1.5 shadow-sm">
         <p class="text-[11px] text-slate-500 uppercase font-bold tracking-wider">অ্যাকাউন্ট স্ট্যাটাস</p>
-        <p class="text-base font-bold text-emerald-600 mt-1"><i class="fa-solid fa-circle-check"></i> ফুললি অ্যাপ্রুভড</p>
-        <p class="text-[10px] text-emerald-700 font-mono">সকল ফিচার আনলকড</p>
+        <p id="statAccountStatus" class="text-base font-bold text-emerald-600 mt-1"><i class="fa-solid fa-circle-check"></i> একটিভ</p>
+        <p class="text-[10px] text-emerald-700 font-mono">সকল ফিচার চালু</p>
       </div>
 
       <div class="cyber-glass-light p-5 rounded-3xl border-l-4 border-l-purple-500 space-y-1.5 shadow-sm">
