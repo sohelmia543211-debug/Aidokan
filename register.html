@@ -101,7 +101,7 @@
       }
     });
 
-    // Supabase এর 'users' টেবিল থেকে স্ট্যাটাস ও ক্যাটাগরি চেক করার ফাংশন
+    // Supabase এর 'users' টেবিল থেকে স্ট্যাটাস ও মার্চেন্ট চেক করার ফাংশন
     async function checkStatusAgain(isAuto = false) {
       const userPhone = localStorage.getItem('userPhone');
       if (!userPhone) {
@@ -126,18 +126,18 @@
         if (data && data.length > 0) {
           const freshUser = data[0];
 
-          // লোকাল স্টোরেজ আপডেট রাখা
-          localStorage.setItem('userName', freshUser.full_name);
+          // স্ট্যাটাস approved কি না চেক করা
+          const isApproved = freshUser.status && freshUser.status.toLowerCase() === 'approved';
+          
+          // মার্চেন্ট কি না চেক করা (ডাটাবেসে না থাকলে ধরে নেওয়া হবে এটি মার্চেন্ট অ্যাকাউন্ট)
+          const isMerchant = !freshUser.main_category || freshUser.main_category === 'merchant';
 
-          // স্ট্যাটাস approved এবং main_category যদি merchant হয়
-          if (freshUser.status && freshUser.status.toLowerCase() === 'approved') {
-            if (freshUser.main_category === 'merchant') {
-              alert("অভিনন্দন! আপনার অ্যাকাউন্টটি সফলভাবে অনুমোদিত হয়েছে।");
-              window.location.href = "dashboardmine.html";
-              return;
-            } else {
-              alert("আপনার অ্যাকাউন্ট অনুমোদিত হয়েছে, তবে এটি মার্চেন্ট ক্যাটাগরি নয়।");
-            }
+          if (isApproved && isMerchant) {
+            alert("অভিনন্দন! আপনার অ্যাকাউন্টটি সফলভাবে অনুমোদিত হয়েছে।");
+            window.location.href = "dashboardmine.html";
+            return;
+          } else if (isApproved && !isMerchant) {
+            alert("আপনার অ্যাকাউন্ট অনুমোদিত হয়েছে, তবে এটি মার্চেন্ট ক্যাটাগরি নয়।");
           }
         }
 
