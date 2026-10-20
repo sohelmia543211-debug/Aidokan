@@ -161,7 +161,7 @@
       loginBtn.disabled = true;
 
       try {
-        // Supabase-এর সঠিক 'users' টেবিল থেকে মোবাইল নম্বর দিয়ে ইউজার খোঁজা
+        // Supabase-এর 'users' টেবিল থেকে মোবাইল নম্বর দিয়ে ইউজার খোঁজা
         const { data, error } = await supabaseClient
           .from('users')
           .select('*')
@@ -182,19 +182,19 @@
 
         // লোকালস্টোরেজে তথ্য সেভ রাখা
         localStorage.setItem('userPhone', user.phone_number);
-        localStorage.setItem('userName', user.full_name);
+        localStorage.setItem('userName', user.full_name || 'ব্যবহারকারী');
         localStorage.setItem('asolNokolUser', JSON.stringify(user));
 
-        // স্ট্যাটাস approved এবং ক্যাটাগরি merchant কি না চেক করা
-        const isApproved = user.status && user.status.toLowerCase().trim() === 'approved';
-        const isMerchant = user.main_category && user.main_category.trim() === 'merchant';
+        // স্ট্যাটাস এবং ক্যাটাগরি ছোট হাতের অক্ষরে রূপান্তর করে নিখুঁতভাবে চেক করা
+        const userStatus = user.status ? user.status.toLowerCase().trim() : '';
+        const userCategory = user.main_category ? user.main_category.toLowerCase().trim() : '';
 
-        if (isApproved && isMerchant) {
-          // যদি approved এবং merchant হয়, তবে dashboardmine.html এ পাঠাবে
+        // যদি স্ট্যাটাস approved এবং ক্যাটাগরি merchant হয়
+        if (userStatus === 'approved' && userCategory === 'merchant') {
           window.location.href = "dashboardmine.html";
           return;
         } else {
-          // অন্যথায় (pending বা non-merchant হলে) fastdashboard.html এ পাঠাবে
+          // অন্যথায় fastdashboard.html এ পাঠাবে
           window.location.href = "fastdashboard.html";
           return;
         }
