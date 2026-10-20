@@ -64,32 +64,25 @@ async function loadUserGigs() {
       return;
     }
 
-    // RecyclerView কার্ডগুলো জেনারেট করা (Dynamic Image & URL সহ)
+    // RecyclerView কার্ডগুলো জেনারেট করা
     recyclerView.innerHTML = gigs.map(gig => {
       const isApproved = gig.status && gig.status.toLowerCase() === 'approved';
       const statusBadge = isApproved
         ? `<span class="px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold"><i class="fa-solid fa-circle-check"></i> Approved</span>`
         : `<span class="px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-bold"><i class="fa-solid fa-clock"></i> Pending Approval</span>`;
 
-      // Dynamic item_code parse
-      const targetCode = gig.item_code || gig.id;
-      const verifyUrl = `https://aidokan.vercel.app/verify.html?id=${targetCode}`;
+      // এখানে toptopbd এর পরিবর্তে Vercel ডোমেন এবং item_id দিয়ে ভেরিফিকেশন লিংক সেট করা হলো
+      const verifyUrl = `https://aidokan.vercel.app/verify.html?id=${gig.item_code}`;
 
       return `
-        <div class="cyber-glass p-5 rounded-3xl space-y-4 border border-slate-800 relative flex flex-col justify-between overflow-hidden">
+        <div class="cyber-glass p-5 rounded-3xl space-y-4 border border-slate-800 relative flex flex-col justify-between">
           <div>
-            ${gig.image_url ? `
-              <div class="w-full h-36 rounded-2xl overflow-hidden mb-3 border border-slate-700/50">
-                <img src="${gig.image_url}" alt="${gig.gig_title}" class="w-full h-full object-cover" onerror="this.parentElement.style.display='none'">
-              </div>
-            ` : ''}
-
             <div class="flex justify-between items-start gap-2 mb-2">
               <h4 class="text-base font-extrabold text-white leading-tight">${gig.gig_title}</h4>
               ${statusBadge}
             </div>
 
-            <p class="text-xs text-gray-400 line-clamp-2 leading-relaxed mb-3">${gig.short_description || gig.gig_description || ''}</p>
+            <p class="text-xs text-gray-400 line-clamp-2 leading-relaxed mb-3">${gig.gig_description || ''}</p>
 
             <div class="flex flex-wrap gap-2 text-[11px] font-mono text-gray-300">
               ${gig.item_code ? `<span class="bg-slate-900 border border-slate-700 px-2.5 py-1 rounded-lg">কোড: ${gig.item_code}</span>` : ''}
