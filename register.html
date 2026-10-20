@@ -1,103 +1,162 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asol Nokol - Registration</title>
-    <link rel="stylesheet" href="register.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>আসল নকল - ভেরিফিকেশন স্ট্যাটাস</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Supabase JS SDK & Config -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabaseconfig.js"></script>
+
+  <style>
+    body {
+      background: #090d16;
+      color: #f0f6fc;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .glass-card {
+      background: rgba(17, 24, 39, 0.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+  </style>
 </head>
-<body>
+<body class="min-h-screen flex items-center justify-center p-4 sm:p-6 relative overflow-x-hidden">
 
-    <div class="register-card">
-        <div class="logo">
-            <i class="fa-solid fa-shield-halved glow-icon"></i> Asol<span>Nokol</span>
-        </div>
-        <h2>Account Toiri Korun</h2>
-        <p class="sub-text" id="stepSubText">Step 1: Apnar totto gulo puron korun</p>
+  <!-- Background Glowing Effects -->
+  <div class="absolute -top-32 -left-32 w-72 h-72 sm:w-96 sm:h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute -bottom-32 -right-32 w-72 h-72 sm:w-96 sm:h-96 bg-amber-600/20 rounded-full blur-3xl pointer-events-none"></div>
 
-        <!-- Progress Indicator -->
-        <div class="step-indicator">
-            <div class="step-dot active" id="dot1">1</div>
-            <div class="step-line" id="stepLine"></div>
-            <div class="step-dot" id="dot2">2</div>
-        </div>
-
-        <form id="registerForm" onsubmit="return false;">
-            
-            <!-- STEP 1: Basic Information -->
-            <div id="step1">
-                <div class="form-group">
-                    <label><i class="fa-solid fa-layer-group"></i> Main Category *</label>
-                    <select id="mainCategory" onchange="loadSubCategories()" required>
-                        <option value="">-- Select Korun --</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label><i class="fa-solid fa-list-check"></i> Sub Category *</label>
-                    <select id="subCategory" required disabled>
-                        <option value="">-- Prothome Main Category Select Korun --</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label><i class="fa-solid fa-user"></i> Full Name *</label>
-                    <input type="text" id="fullName" placeholder="Apnar puron nam likhun" required>
-                </div>
-
-                <div class="form-group">
-                    <label><i class="fa-solid fa-envelope"></i> Email Address *</label>
-                    <input type="email" id="email" placeholder="example@mail.com" required>
-                </div>
-
-                <div class="form-group">
-                    <label><i class="fa-solid fa-phone"></i> Mobile Number *</label>
-                    <input type="tel" id="phoneNumber" placeholder="017XXXXXXXX" required>
-                </div>
-
-                <div class="form-group">
-                    <label><i class="fa-solid fa-lock"></i> Password *</label>
-                    <input type="password" id="password" placeholder="Atleast 6 digit password" minlength="6" required>
-                </div>
-
-                <button type="button" class="btn-submit" onclick="goToStep2()">
-                    Nijer Dhap (OTP Pathan) <i class="fa-solid fa-arrow-right"></i>
-                </button>
-            </div>
-
-            <!-- STEP 2: OTP Verification -->
-            <div id="step2" class="hidden">
-                <div class="otp-info">
-                    <i class="fa-solid fa-mobile-screen-button otp-icon"></i>
-                    <p><b id="displayPhone">017XXXXXXXX</b>-e ekta OTP pathano hoyeche.</p>
-                    <small>(Test Code: <b>1234</b>)</small>
-                </div>
-
-                <div class="form-group">
-                    <label><i class="fa-solid fa-key"></i> 4-Digit OTP Code *</label>
-                    <input type="text" id="otpCode" placeholder="1234" maxlength="4" required>
-                    <small id="otpMessage"></small>
-                </div>
-
-                <div class="btn-group">
-                    <button type="button" class="btn-back" onclick="goToStep1()">
-                        <i class="fa-solid fa-arrow-left"></i> Piche
-                    </button>
-                    <button type="button" id="submitBtn" class="btn-submit" onclick="verifyAndSubmit()">
-                        <i class="fa-solid fa-check-circle"></i> Verify & Submit
-                    </button>
-                </div>
-            </div>
-
-        </form>
-
-        <p class="login-link">
-            Ager thekei account ache? <a href="login.html">Login Korun</a>
-        </p>
+  <!-- Main Container -->
+  <div class="glass-card w-full max-w-md sm:max-w-lg rounded-3xl p-6 sm:p-8 text-center relative z-10 space-y-5 sm:space-y-6">
+    
+    <!-- Status Icon Animation -->
+    <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-2xl sm:text-3xl shadow-lg shadow-amber-500/20 animate-pulse">
+      <i class="fa-solid fa-hourglass-half"></i>
     </div>
 
-    <script src="register.js"></script>
+    <!-- Header Text -->
+    <div>
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold mb-3">
+        <i class="fa-solid fa-triangle-exclamation"></i> যাচাইকরণের অপেক্ষায়
+      </div>
+      <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white">আপনার অ্যাকাউন্টটি পেন্ডিং আছে</h1>
+      <p class="text-gray-400 text-xs sm:text-sm mt-2 leading-relaxed">
+        আপনার দেওয়া তথ্যগুলো আমাদের টিম যাচাই-বাছাই করছে। অ্যাডমিন অনুমোদন দিলেই স্বয়ংক্রিয়ভাবে ড্যাশবোর্ডে প্রবেশ করতে পারবেন।
+      </p>
+    </div>
+
+    <!-- User Info Box -->
+    <div class="bg-gray-900/70 border border-gray-800 rounded-2xl p-4 text-left space-y-3 text-xs sm:text-sm">
+      <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+        <span class="text-gray-400">নাম:</span>
+        <span id="userName" class="font-semibold text-white truncate max-w-[180px] sm:max-w-[250px]">লোড হচ্ছে...</span>
+      </div>
+      <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+        <span class="text-gray-400">মোবাইল:</span>
+        <span id="userPhone" class="font-semibold text-white">লোড হচ্ছে...</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-gray-400">স্ট্যাটাস:</span>
+        <span id="statusBadge" class="font-bold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full text-xs">Pending (অপেক্ষমাণ)</span>
+      </div>
+    </div>
+
+    <!-- Actions & Support Buttons -->
+    <div class="pt-2 space-y-3">
+      <button id="checkBtn" onclick="checkStatusAgain()" class="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs sm:text-sm font-bold shadow-lg shadow-blue-500/25 transition flex items-center justify-center gap-2 cursor-pointer">
+        <i class="fa-solid fa-rotate"></i> স্ট্যাটাস চেক করুন
+      </button>
+
+      <!-- WhatsApp Support Button -->
+      <a href="https://wa.me/8801700000000?text=হ্যালো,%20আমার%20ভেরিফিকেশনটি%20পেন্ডিং%20রয়েছে।%20দয়া%20করে%20সহযোগিতা%20করুন।" target="_blank" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs sm:text-sm font-bold shadow-lg shadow-emerald-500/25 transition flex items-center justify-center gap-2">
+        <i class="fa-brands fa-whatsapp text-lg"></i> অ্যাডমিনের সাথে লাইভ চ্যাট করুন
+      </a>
+
+      <a href="login.html" class="block w-full py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold transition text-center">
+        <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> লগআউট করুন
+      </a>
+    </div>
+
+  </div>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const userPhone = localStorage.getItem('userPhone');
+      const userName = localStorage.getItem('userName');
+
+      if (userPhone) {
+        document.getElementById('userName').innerText = userName || 'ব্যবহারকারী';
+        document.getElementById('userPhone').innerText = userPhone;
+        
+        // পেজ লোড হওয়ার সাথে সাথে ব্যাকগ্রাউন্ডে স্ট্যাটাস চেক করা
+        checkStatusAgain(true);
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    // Supabase এর 'users' টেবিল থেকে স্ট্যাটাস ও ক্যাটাগরি চেক করার ফাংশন
+    async function checkStatusAgain(isAuto = false) {
+      const userPhone = localStorage.getItem('userPhone');
+      if (!userPhone) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const btn = document.getElementById('checkBtn');
+      if (!isAuto) {
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> যাচাই করা হচ্ছে...`;
+        btn.disabled = true;
+      }
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('users')
+          .select('*')
+          .eq('phone_number', userPhone);
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          const freshUser = data[0];
+
+          // লোকাল স্টোরেজ আপডেট রাখা
+          localStorage.setItem('userName', freshUser.full_name);
+
+          // স্ট্যাটাস approved এবং main_category যদি merchant হয়
+          if (freshUser.status && freshUser.status.toLowerCase() === 'approved') {
+            if (freshUser.main_category === 'merchant') {
+              alert("অভিনন্দন! আপনার অ্যাকাউন্টটি সফলভাবে অনুমোদিত হয়েছে।");
+              window.location.href = "dashboardmine.html";
+              return;
+            } else {
+              alert("আপনার অ্যাকাউন্ট অনুমোদিত হয়েছে, তবে এটি মার্চেন্ট ক্যাটাগরি নয়।");
+            }
+          }
+        }
+
+        if (!isAuto) {
+          alert("আপনার স্ট্যাটাস এখনো পেন্ডিং রয়েছে। অ্যাডমিন অনুমোদন দেওয়ার পর আবার চেষ্টা করুন।");
+        }
+
+      } catch (err) {
+        console.error("Status Check Error:", err.message);
+        if (!isAuto) {
+          alert("স্ট্যাটাস চেক করতে সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন।");
+        }
+      } finally {
+        if (!isAuto) {
+          btn.innerHTML = `<i class="fa-solid fa-rotate"></i> স্ট্যাটাস চেক করুন`;
+          btn.disabled = false;
+        }
+      }
+    }
+  </script>
 </body>
 </html>
