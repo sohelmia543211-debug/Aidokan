@@ -161,9 +161,9 @@
       loginBtn.disabled = true;
 
       try {
-        // Supabase-এ মোবাইল নম্বর দিয়ে ইউজার খোঁজা
+        // Supabase-এর সঠিক 'users' টেবিল থেকে মোবাইল নম্বর দিয়ে ইউজার খোঁজা
         const { data, error } = await supabaseClient
-          .from('registrations')
+          .from('users')
           .select('*')
           .eq('phone_number', phone);
 
@@ -180,30 +180,27 @@
           throw new Error("ভুল পাসওয়ার্ড! অনুগ্রহ করে সঠিক পাসওয়ার্ড দিন।");
         }
 
-        // সেশন ডাটা ও ইউজার আইডি লোকালস্টোরেজে সেভ রাখা
+        // লোকালস্টোরেজে তথ্য সেভ রাখা
+        localStorage.setItem('userPhone', user.phone_number);
+        localStorage.setItem('userName', user.full_name);
         localStorage.setItem('asolNokolUser', JSON.stringify(user));
-        localStorage.setItem('user_id', user.id); // পেমেন্ট পেজের জন্য ইউজার আইডি সেভ করা হলো
 
-        // ১. যদি স্ট্যাটাস pending হয়, তবে সরাসরি fastdashboard.html এ পাঠিয়ে দিবে
-        if (!user.status || user.status === 'pending') {
+        // স্ট্যাটাস approved এবং ক্যাটাগরি merchant কি না চেক করা
+        const isApproved = user.status && user.status.toLowerCase().trim() === 'approved';
+        const isMerchant = user.main_category && user.main_category.trim() === 'merchant';
+
+        if (isApproved && isMerchant) {
+          // যদি approved এবং merchant হয়, তবে dashboardmine.html এ পাঠাবে
+          window.location.href = "dashboardmine.html";
+          return;
+        } else {
+          // অন্যথায় (pending বা non-merchant হলে) fastdashboard.html এ পাঠাবে
           window.location.href = "fastdashboard.html";
           return;
         }
 
-        // ২. যদি স্ট্যাটাস approved হয়, তবে ক্যাটাগরি অনুযায়ী মূল ড্যাশবোর্ডে পাঠাবে
-        const category = user.main_category;
-        if (category === 'merchant') {
-          window.location.href = "marchent_dashboard.html";
-        } else if (category === 'health') {
-          window.location.href = "doctor_dashboard.html";
-        } else if (category === 'lab') {
-          window.location.href = "lab_dashboard.html";
-        } else {
-          window.location.href = "otherpymntmathead.html"; // নন-মার্চেন্টদের জন্য পেমেন্ট পেজে রিডাইরেক্ট করা হলো
-        }
-
       } catch (err) {
-        console.error("Login Error:", err);
+        console.error("Login Error:", err.message);
         errorMessage.innerText = err.message || "লগইন করতে সমস্যা হয়েছে!";
         errorMessage.classList.remove('hidden');
         loginBtn.innerHTML = `<i class="fa-solid fa-right-to-bracket mr-1"></i> লগইন করুন`;
@@ -240,7 +237,7 @@
 
       try {
         const { data, error } = await supabaseClient
-          .from('registrations')
+          .from('users')
           .select('phone_number')
           .eq('phone_number', phone);
 
@@ -294,9 +291,8 @@
       submitBtn.disabled = true;
 
       try {
-        // Supabase-এ পাসওয়ার্ড আপডেট করা
         const { data, error } = await supabaseClient
-          .from('registrations')
+          .from('users')
           .update({ password_hash: newPass })
           .eq('phone_number', phone);
 
