@@ -47,7 +47,7 @@
       </div>
       <h1 class="text-2xl font-bold tracking-tight text-white">আপনার অ্যাকাউন্টটি পেন্ডিং আছে</h1>
       <p class="text-gray-400 text-sm mt-2 leading-relaxed">
-        আপনার দেওয়া ডকুমেন্টস ও তথ্যগুলো আমাদের টিম যাচাই-বাছাই করছে। অ্যাডমিন অনুমোদন দিলেই নিচের বাটন দিয়ে বা অটোমেটিক ড্যাশবোর্ডে প্রবেশ করতে পারবেন।
+        আপনার দেওয়া ডকুমেন্টস ও তথ্যগুলো আমাদের টিম যাচাই-বাছাই করছে। অ্যাডমিন অনুমোদন দিলেই নিচের বাটন দিয়ে বা অটোমেটিক ড্যাশবোর্ডে প্রবেশ করতে পারবেন।
       </p>
     </div>
 
@@ -87,22 +87,27 @@
 
   <script>
     window.addEventListener('DOMContentLoaded', () => {
-      const userData = JSON.parse(localStorage.getItem('asolNokolUser'));
-      if (userData) {
-        document.getElementById('userName').innerText = userData.full_name || 'N/A';
-        document.getElementById('userPhone').innerText = userData.phone_number || 'N/A';
-        
-        // ব্যাকগ্রাউন্ডে একবার স্ট্যাটাস চেক করে নেওয়া ভালো
+      const userPhone = localStorage.getItem('userPhone');
+      const userName = localStorage.getItem('userName');
+      const userData = JSON.parse(localStorage.getItem('asolNokolUser') || '{}');
+
+      // নাম ও ফোন নম্বর স্ক্রিনে সেট করা
+      document.getElementById('userName').innerText = userName || userData.full_name || 'N/A';
+      document.getElementById('userPhone').innerText = userPhone || userData.phone_number || 'N/A';
+
+      if (userPhone || userData.phone_number) {
+        // ব্যাকগ্রাউন্ডে স্ট্যাটাস চেক করা
         checkStatusAgain(true);
       } else {
         window.location.href = "login.html";
       }
     });
 
-    // Supabase থেকে রিয়েল-টাইম স্ট্যাটাস চেক করার ফাংশন
+    // Supabase থেকে সঠিক 'users' টেবিল চেক করার ফাংশন
     async function checkStatusAgain(isAuto = false) {
-      const userData = JSON.parse(localStorage.getItem('asolNokolUser'));
-      if (!userData || !userData.phone_number) {
+      const userPhone = localStorage.getItem('userPhone') || (JSON.parse(localStorage.getItem('asolNokolUser') || '{}')).phone_number;
+      
+      if (!userPhone) {
         window.location.href = "login.html";
         return;
       }
@@ -114,11 +119,10 @@
       }
 
       try {
-        // সুপাবেস থেকে ইউজারের লেটেস্ট ডেটা ফেচ করা
         const { data, error } = await supabaseClient
-          .from('registrations')
+          .from('users')
           .select('*')
-          .eq('phone_number', userData.phone_number);
+          .eq('phone_number', userPhone);
 
         if (error) throw error;
 
@@ -127,23 +131,27 @@
 
           // লোকালস্টোরেজ আপডেট করা
           localStorage.setItem('asolNokolUser', JSON.stringify(freshUser));
+          localStorage.setItem('userName', freshUser.full_name);
+          localStorage.setItem('userPhone', freshUser.phone_number);
 
-          // যদি স্ট্যাটাস approved হয়, তবে সোজা ড্যাশবোর্ডে পাঠাবে
-          if (freshUser.status && freshUser.status.toLowerCase() === 'approved') {
-            alert("অভিনন্দন! আপনার অ্যাকাউন্টটি সফলভাবে অনুমোদিত হয়েছে।");
+          const userStatus = freshUser.status ? freshUser.status.toLowerCase().trim() : '';
+
+          // যদি স্ট্যাটাস approved হয়, তবে সোজা ড্যাশবোর্ডে পাঠাবে
+          if (userStatus === 'approved') {
+            alert("অভিনন্দন! আপনার অ্যাকাউন্টটি সফলভাবে অনুমোদিত হয়েছে।");
             window.location.href = "dashboardmine.html";
             return;
           }
         }
 
         if (!isAuto) {
-          alert("আপনার স্ট্যাটাস এখনো পেন্ডিং রয়েছে। অ্যাডমিন অনুমোদন দেওয়ার পর আবার চেষ্টা করুন।");
+          alert("আপনার স্ট্যাটাস এখনো পেন্ডিং রয়েছে। অ্যাডমিন অনুমোদন দেওয়ার পর আবার চেষ্টা করুন।");
         }
 
       } catch (err) {
-        console.error("Status Check Error:", err);
+        console.error("Status Check Error:", err.message);
         if (!isAuto) {
-          alert("স্ট্যাটাস চেক করতে সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন।");
+          alert("স্ট্যাটাস চেক করতে সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন।");
         }
       } finally {
         if (!isAuto) {
