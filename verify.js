@@ -1,28 +1,42 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // URL noise/bracket clean korar function
     const urlParams = new URLSearchParams(window.location.search);
-    const itemId = urlParams.get('id') || '56587';
+    let rawId = urlParams.get('id') || '';
+    
+    // Extracted clean item_code (e.g., 56587)
+    const cleanId = rawId.replace(/[^a-zA-Z0-9_-]/g, '').trim();
 
-    // ডেমো বা ডাটাবেস থেকে ডেটা লোড
-    setTimeout(() => {
-        const dbData = {
-            gig_title: "Premium Electric Spice Grinder",
-            category: "Merchant / Factory",
-            subCategory: "Electronics & Appliances",
-            item_code: itemId,
-            price: "577",
-            // এখানে আপনার Supabase টেবিলের আসল image_url বসবে
-            image_url: "https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?q=80&w=400&auto=format&fit=crop", 
-            verifiedBy: "TopTopBD Official",
-            status: "Approved",
-            created_at: "October 20, 2026"
-        };
+    if (!cleanId) {
+        renderError("Item ID পাওয়া যায়নি!");
+        return;
+    }
 
-        renderVerificationCard(dbData);
-    }, 500);
+    try {
+        // Supabase 'gigs' table theke item_code দিয়ে fetch
+        const { data: gig, error } = await supabaseClient
+            .from('gigs')
+            .select('*')
+            .eq('item_code', cleanId)
+            .single();
+
+        if (error || !gig) {
+            renderError("ডাটা পাওয়া যায়নি অথবা পণ্যটি সঠিক নয়।");
+            return;
+        }
+
+        renderVerificationCard(gig);
+    } catch (err) {
+        console.error(err);
+        renderError("সার্ভার ত্রুটি! আবার চেষ্টা করুন।");
+    }
 });
 
-function renderVerificationCard(data) {
+function renderVerificationCard(gig) {
     const contentArea = document.getElementById('content-area');
+
+    const formattedDate = gig.created_at 
+        ? new Date(gig.created_at).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' })
+        : 'N/A';
 
     contentArea.innerHTML = `
         <div class="card-header">
@@ -35,42 +49,60 @@ function renderVerificationCard(data) {
             </div>
         </div>
 
-        <!-- ইমেজ ট্যাগ যাতে ব্রোকেন না দেখায় onerror হ্যান্ডਲার সহ -->
-        ${data.image_url ? `
+        ${gig.image_url ? `
         <div class="verified-image-container">
-            <img src="${data.image_url}" alt="${data.gig_title}" class="verified-img" onerror="this.style.display='none'">
+            <img src="${gig.image_url}" alt="${gig.gig_title || 'Product Image'}" class="verified-img" onerror="this.parentElement.style.display='none'">
         </div>` : ''}
 
         <div class="card-body">
             <div class="info-group">
                 <span class="label">Product / Service Name:</span>
-                <span class="value">${data.gig_title}</span>
+                <span class="value">${gig.gig_title || 'N/A'}</span>
             </div>
+
+            ${gig.short_description ? `
             <div class="info-group">
-                <span class="label">Categories:</span>
-                <span class="value">${data.category}</span>
-            </div>
-            <div class="info-group">
-                <span class="label">Sub-categories:</span>
-                <span class="value">${data.subCategory}</span>
-            </div>
+                <span class="label">Short Description:</span>
+                <span class="value">${gig.short_description}</span>
+            </div>` : ''}
+
             <div class="info-group">
                 <span class="label">Code / Reg No:</span>
-                <span class="value">${data.item_code}</span>
+                <span class="value">${gig.item_code}</span>
             </div>
-            ${data.price ? `
+
+            ${gig.price ? `
             <div class="info-group">
                 <span class="label">Price:</span>
-                <span class="value price-tag">৳ ${data.price}</span>
+                <span class="value price-tag">৳ ${gig.price}</span>
             </div>` : ''}
+
             <div class="info-group">
-                <span class="label">Merchant / Organization:</span>
-                <span class="value">${data.verifiedBy}</span>
+                <span class="label">Status:</span>
+                <span class="value">${gig.status || 'Approved'}</span>
             </div>
+
             <div class="info-group">
                 <span class="label">Verification Date:</span>
-                <span class="value">${data.created_at}</span>
+                <span class="value">${formattedDate}</span>
             </div>
+
+            ${gig.gig_description ? `
+            <div class="info-group" style="flex-direction: column; align-items: flex-start; gap: 4px; margin-top: 10px;">
+                <span class="label">Description:</span>
+                <p style="font-size: 13px; color: #475569; line-height: 1.4;">${gig.gig_description}</p>
+            </div>` : ''}
+        </div>
+    `;
+}
+
+function renderError(message) {
+    const contentArea = document.getElementById('content-area');
+    contentArea.innerHTML = `
+        <div class="state-container">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size: 48px; color: #ef4444; margin-bottom: 12px;"></i>
+            <h3 style="color: #ef4444; margin-bottom: 8px;">Verification Failed</h3>
+            <p style="color: #64748b;">${message}</p>
         </div>
     `;
 }
