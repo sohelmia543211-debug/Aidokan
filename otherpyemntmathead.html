@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>সাবস্ক্রিপশন ও পেমেন্ট - আসল নকল</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            background-color: #0b0f19;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .glass-card {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .plan-card {
+            transition: all 0.3s ease;
+        }
+        .plan-card:hover {
+            transform: translateY(-5px);
+            border-color: #6366f1;
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.3);
+        }
+        .plan-card.selected {
+            border-color: #4f46e5;
+            background: rgba(79, 70, 229, 0.15);
+        }
+    </style>
+</head>
+<body class="min-h-screen py-10 px-4">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- হেডার অংশ -->
+        <div class="text-center mb-10">
+            <h1 class="text-3xl font-bold mb-2">আপনার ডিজিটাল প্রোফাইল ভ্যালিডিটি সিলেক্ট করুন</h1>
+            <p class="text-gray-400">মেয়াদ শেষ হলে আপনার কিউআর কোড এবং প্রোফাইল স্বয়ংক্রিয়ভাবে ইনঅ্যাক্টিভ হয়ে যাবে।</p>
+        </div>
+
+        <!-- ৪টি পেমেন্ট প্ল্যান কার্ড -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            
+            <!-- প্ল্যান ১: ১ বছর -->
+            <div data-plan="1_year" data-amount="1290" data-years="1" class="plan-card glass-card rounded-2xl p-6 cursor-pointer text-center relative flex flex-col justify-between">
+                <div>
+                    <span class="bg-indigo-500/20 text-indigo-400 text-xs font-semibold px-3 py-1 rounded-full">স্ট্যান্ডার্ড</span>
+                    <h3 class="text-xl font-bold mt-4">১ বছর</h3>
+                    <div class="my-4">
+                        <span class="text-3xl font-bold">১২৯০</span> <span class="text-sm text-gray-400">টাকা</span>
+                    </div>
+                    <p class="text-xs text-gray-400">যাচাইকৃত ১টি ফিক্সড কিউআর কোড ও ড্যাশবোর্ড সুবিধা।</p>
+                </div>
+                <button type="button" class="mt-6 w-full py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-sm font-semibold transition">সিলেক্ট করুন</button>
+            </div>
+
+            <!-- প্ল্যান ২: ২ বছর -->
+            <div data-plan="2_years" data-amount="2190" data-years="2" class="plan-card glass-card rounded-2xl p-6 cursor-pointer text-center relative flex flex-col justify-between">
+                <div class="absolute -top-3 right-4 bg-emerald-500 text-black text-[10px] font-bold px-2 py-0.5 rounded-full">সাশ্রয়ী</div>
+                <div>
+                    <span class="bg-emerald-500/20 text-emerald-400 text-xs font-semibold px-3 py-1 rounded-full">পপুলার</span>
+                    <h3 class="text-xl font-bold mt-4">২ বছর</h3>
+                    <div class="my-4">
+                        <span class="text-3xl font-bold">২১৯০</span> <span class="text-sm text-gray-400">টাকা</span>
+                    </div>
+                    <p class="text-xs text-gray-400">২ বছরের জন্য নিরবচ্ছিন্ন ডিজিটাল পরিচয় ভেরিফিকেশন।</p>
+                </div>
+                <button type="button" class="mt-6 w-full py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-sm font-semibold transition">সিলেক্ট করুন</button>
+            </div>
+
+            <!-- প্ল্যান ৩: ৫ বছর -->
+            <div data-plan="5_years" data-amount="6000" data-years="5" class="plan-card glass-card rounded-2xl p-6 cursor-pointer text-center relative flex flex-col justify-between">
+                <div>
+                    <span class="bg-purple-500/20 text-purple-400 text-xs font-semibold px-3 py-1 rounded-full">সেরা অফার</span>
+                    <h3 class="text-xl font-bold mt-4">৫ বছর</h3>
+                    <div class="my-4">
+                        <span class="text-3xl font-bold">৬০০০</span> <span class="text-sm text-gray-400">টাকা</span>
+                    </div>
+                    <p class="text-xs text-gray-400">দীর্ঘমেয়াদী সুবিধা ও ঝামেলাহীন ৫ বছরের ভ্যালিডিটি।</p>
+                </div>
+                <button type="button" class="mt-6 w-full py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-sm font-semibold transition">সিলেক্ট করুন</button>
+            </div>
+
+            <!-- প্ল্যান ৪: ১০ বছর -->
+            <div data-plan="10_years" data-amount="11000" data-years="10" class="plan-card glass-card rounded-2xl p-6 cursor-pointer text-center relative flex flex-col justify-between">
+                <div class="absolute -top-3 right-4 bg-amber-500 text-black text-[10px] font-bold px-2 py-0.5 rounded-full">ভিআইপি</div>
+                <div>
+                    <span class="bg-amber-500/20 text-amber-400 text-xs font-semibold px-3 py-1 rounded-full">লাইফটাইম ভাব</span>
+                    <h3 class="text-xl font-bold mt-4">১০ বছর</h3>
+                    <div class="my-4">
+                        <span class="text-3xl font-bold">১১০০০</span> <span class="text-sm text-gray-400">টাকা</span>
+                    </div>
+                    <p class="text-xs text-gray-400">একসাথে ১০ বছরের জন্য সুরক্ষিত ভেরিফাইড প্রোফাইল।</p>
+                </div>
+                <button type="button" class="mt-6 w-full py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-sm font-semibold transition">সিলেক্ট করুন</button>
+            </div>
+
+        </div>
+
+        <!-- পেমেন্ট মাধ্যম ও ট্রানজেকশন সাবমিট ফর্ম -->
+        <div id="payment-section" class="glass-card rounded-2xl p-6 hidden">
+            <h2 class="text-xl font-bold mb-4">পেমেন্ট সম্পন্ন করার নির্দেশিকা</h2>
+            
+            <div class="bg-indigo-950/60 border border-indigo-500/40 p-5 rounded-xl mb-6 text-indigo-200">
+                <p class="text-sm mb-1">দয়া করে নিচের নম্বরে সেন্ড মানি (Send Money) করুন:</p>
+                <p class="text-2xl font-extrabold text-white tracking-wider my-2">বিকাশ/নগদ: <span class="text-amber-400">01712345678</span> (Personal)</p>
+                <p id="selected-amount-text" class="text-lg font-semibold text-emerald-400 mt-2"></p>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm text-gray-400 mb-2">কোন মাধ্যমে টাকা পাঠিয়েছেন?</label>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <label class="border border-gray-700 rounded-xl p-4 flex items-center space-x-3 cursor-pointer hover:border-indigo-500 transition">
+                        <input type="radio" name="payment_method" value="bKash" class="text-indigo-600 focus:ring-indigo-500">
+                        <span class="font-semibold">বিকাশ (bKash)</span>
+                    </label>
+                    <label class="border border-gray-700 rounded-xl p-4 flex items-center space-x-3 cursor-pointer hover:border-indigo-500 transition">
+                        <input type="radio" name="payment_method" value="Nagad" class="text-indigo-600 focus:ring-indigo-500">
+                        <span class="font-semibold">নগদ (Nagad)</span>
+                    </label>
+                    <label class="border border-gray-700 rounded-xl p-4 flex items-center space-x-3 cursor-pointer hover:border-indigo-500 transition">
+                        <input type="radio" name="payment_method" value="Card" class="text-indigo-600 focus:ring-indigo-500">
+                        <span class="font-semibold">কার্ড / ব্যাংক (Card)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">যে নম্বর থেকে টাকা পাঠিয়েছেন (Sender Number)</label>
+                    <input type="text" id="sender_phone" placeholder="যেমন: 01712345678" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">ট্রানজেকশন আইডি (TrxID)</label>
+                    <input type="text" id="trx_id" placeholder="যেমন: 9N7A8B6C..." class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-indigo-500">
+                </div>
+            </div>
+
+            <button onclick="submitPayment()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 rounded-xl font-bold text-lg transition shadow-lg shadow-emerald-600/30">
+                পেমেন্ট তথ্য সাবমিট করুন
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // Supabase Credentials (Safe CDN window object access)
+        const SUPABASE_URL = 'https://dzytdijmabiebefhgkkc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6eXRkaWptYWJpZWJlZmhna2tjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxOTE3MTAsImV4cCI6MjA4NTc2NzcxMH0.ni86vJbes2k0UmkpYp5gs-fqXF5uD9nzumAnfMpi9Hs';
+        
+        let supabaseClient;
+        try {
+            supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+        } catch (e) {
+            console.error("Supabase Init Error:", e);
+        }
+
+        let selectedPlan = '';
+        let selectedAmount = 0;
+        let planYears = 0;
+
+        // কার্ডের ক্লিক হ্যান্ডলার
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.plan-card');
+            
+            cards.forEach(card => {
+                card.addEventListener('click', function() {
+                    cards.forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+
+                    selectedPlan = this.getAttribute('data-plan');
+                    selectedAmount = parseInt(this.getAttribute('data-amount'));
+                    planYears = parseInt(this.getAttribute('data-years'));
+
+                    document.getElementById('selected-amount-text').innerText = `প্রয়োজনীয় মোট টাকা: ${selectedAmount} টাকা (${planYears} বছরের সাবস্ক্রিপশন)`;
+                    document.getElementById('payment-section').classList.remove('hidden');
+                    document.getElementById('payment-section').scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+        });
+
+        // পেমেন্ট সাবমিট করার ফাংশন
+        async function submitPayment() {
+            if (!supabaseClient) {
+                alert('Supabase কানেকশন তৈরি করা সম্ভব হয়নি। দয়া করে পেজটি রিফ্রেশ করুন।');
+                return;
+            }
+
+            const methodInput = document.querySelector('input[name="payment_method"]:checked');
+            const senderPhone = document.getElementById('sender_phone').value.trim();
+            const trxId = document.getElementById('trx_id').value.trim();
+
+            if (!methodInput) {
+                alert('দয়া করে বিকাশ, নগদ বা কার্ড এর মধ্যে যেকোনো একটি সিলেক্ট করুন।');
+                return;
+            }
+            if (!senderPhone || !trxId) {
+                alert('দয়া করে আপনার প্রেরক নম্বর এবং ট্রানজেকশন আইডি (TrxID) সঠিকভাবে লিখুন।');
+                return;
+            }
+
+            const userId = localStorage.getItem('user_id'); 
+            if (!userId) {
+                alert('ইউজার আইডি পাওয়া যায়নি! দয়া করে আগে লগইন বা রেজিস্ট্রেশন সম্পন্ন করুন।');
+                return;
+            }
+
+            const expiryDate = new Date();
+            expiryDate.setFullYear(expiryDate.getFullYear() + planYears);
+
+            const { data, error } = await supabaseClient
+                .from('subscriptions')
+                .insert([
+                    {
+                        user_id: userId,
+                        subscription_plan: selectedPlan,
+                        amount: selectedAmount,
+                        payment_method: methodInput.value,
+                        trx_id: trxId,
+                        sender_phone: senderPhone,
+                        payment_status: 'Pending',
+                        expiry_date: expiryDate.toISOString()
+                    }
+                ]);
+
+            if (error) {
+                console.error(error);
+                alert('পেমেন্ট সাবমিট করতে সমস্যা হয়েছে: ট্রানজেকশন আইডি পূর্বে ব্যবহৃত হয়ে থাকতে পারে।');
+            } else {
+                alert('আপনার পেমেন্ট রিকোয়েস্ট সফলভাবে জমা হয়েছে! অ্যাডমিন যাচাই করার পর আপনার অ্যাকাউন্ট সক্রিয় করে দেওয়া হবে।');
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>

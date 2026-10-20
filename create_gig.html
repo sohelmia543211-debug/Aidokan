@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>আসল নকল - নতুন সার্ভিস বা ডকুমেন্ট এন্ট্রি</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabaseconfig.js"></script>
+
+  <style>
+    body {
+      background: #030712;
+      color: #f8fafc;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .cyber-glass {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      box-shadow: 0 0 35px rgba(0, 0, 0, 0.9);
+    }
+    .cyber-input {
+      background: rgba(3, 7, 18, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      transition: all 0.3s ease;
+    }
+    .cyber-input:focus {
+      border-color: #06b6d4;
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+      outline: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen py-10 px-4 flex items-center justify-center relative overflow-x-hidden">
+
+  <div class="absolute -top-32 -left-32 w-80 h-80 bg-cyan-600/15 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute -bottom-32 -right-32 w-80 h-80 bg-blue-600/15 rounded-full blur-3xl pointer-events-none"></div>
+
+  <div class="cyber-glass w-full max-w-2xl rounded-3xl p-6 sm:p-10 relative z-10 space-y-6">
+    
+    <!-- Top Header -->
+    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+      <div>
+        <h1 class="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+          <i class="fa-solid fa-file-shield text-cyan-400"></i> নতুন সার্ভিস বা ডকুমেন্ট এন্ট্রি
+        </h1>
+        <p class="text-xs text-cyan-400 font-mono mt-1">
+          <i class="fa-solid fa-circle-info mr-1"></i> গ্রাহক কিউআর স্ক্যান করলে এই ভেরিফিকেশন তথ্যটি দেখতে পাবেন।
+        </p>
+      </div>
+      <a href="dashboardmine.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-gray-300 px-3.5 py-2 rounded-xl font-semibold transition whitespace-nowrap">
+        <i class="fa-solid fa-arrow-left mr-1"></i> ড্যাশবোর্ড
+      </a>
+    </div>
+
+    <!-- Auto-filled Readonly User Info Box -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-900/80 p-4 rounded-2xl border border-slate-800 text-xs">
+      <div>
+        <span class="text-gray-400 block font-mono text-[10px]">প্রতিষ্ঠানের / প্রফেশনাল নাম</span>
+        <span id="displayOrgName" class="font-bold text-white font-mono">লোড হচ্ছে...</span>
+      </div>
+      <div>
+        <span class="text-gray-400 block font-mono text-[10px]">অফিসিয়াল আইডি</span>
+        <span id="displayUserId" class="font-bold text-cyan-400 font-mono">#AN-0000</span>
+      </div>
+      <div>
+        <span class="text-gray-400 block font-mono text-[10px]">মোবাইল নম্বর</span>
+        <span id="displayPhone" class="font-bold text-white font-mono">01700000000</span>
+      </div>
+    </div>
+
+    <!-- Form Start -->
+    <form id="gigForm" onsubmit="handleGigSubmit(event)" class="space-y-4">
+      
+      <div>
+        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-widest mb-1.5">সার্ভিস বা ডকুমেন্টের শিরোনাম (Title / Patient / Client Name) *</label>
+        <input type="text" id="gigTitle" required placeholder="যেমন: ডায়াগনস্টিক রিপোর্ট বা কনসালটেশন বা সার্টিফিকেট ভেরিফিকেশন" class="w-full cyber-input rounded-2xl px-4 py-3 text-sm">
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-gray-300 uppercase tracking-widest mb-1.5">সিরিয়াল বা রেফারেন্স নম্বর (ঐচ্ছিক)</label>
+          <input type="text" id="itemCode" placeholder="যেমন: REF-2026-01" class="w-full cyber-input rounded-2xl px-4 py-3 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-300 uppercase tracking-widest mb-1.5">ফি বা মূল্য (টাকা - ঐচ্ছিক)</label>
+          <input type="number" id="gigPrice" placeholder="যেমন: 500" class="w-full cyber-input rounded-2xl px-4 py-3 text-sm">
+        </div>
+      </div>
+
+      <!-- Image Upload Field -->
+      <div>
+        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-widest mb-1.5">সংশ্লিষ্ট ছবি বা ডকুমেন্টের স্ক্যান কপি (ঐচ্ছিক)</label>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <input type="file" id="gigImageFile" accept="image/*" onchange="previewImageFile(event)" class="w-full cyber-input rounded-2xl px-3 py-2 text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-cyan-500/20 file:text-cyan-300 hover:file:bg-cyan-500/30">
+          <input type="url" id="gigImageUrl" placeholder="অথবা ছবির ডিরেক্ট URL দিন" class="w-full cyber-input rounded-2xl px-4 py-3 text-sm">
+        </div>
+      </div>
+
+      <!-- Short Description -->
+      <div>
+        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-widest mb-1.5">সংক্ষিপ্ত সারসংক্ষেপ (Short Summary) *</label>
+        <input type="text" id="gigShortDesc" required placeholder="এক লাইনে মূল সেবা বা বিষয়ের বিবরণ দিন..." class="w-full cyber-input rounded-2xl px-4 py-3 text-sm">
+      </div>
+
+      <!-- Long Description -->
+      <div>
+        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-widest mb-1.5">বিস্তারিত বিবরণ ও নির্দেশনা (Full Details & Instructions) *</label>
+        <textarea id="gigLongDesc" rows="4" required placeholder="সেবা বা পরামর্শের বিস্তারিত তথ্য এখানে লিখুন..." class="w-full cyber-input rounded-2xl p-4 text-sm"></textarea>
+      </div>
+
+      <!-- Privacy Checkbox -->
+      <div class="flex items-center gap-2 pt-1">
+        <input type="checkbox" id="showPhoneCheck" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-cyan-500">
+        <label for="showPhoneCheck" class="text-xs text-gray-300">ভেরিফিকেশন পেজে আমার যোগাযোগের নম্বরটি দেখাতে চাই (ঐচ্ছিক)</label>
+      </div>
+
+      <button type="submit" id="submitBtn" class="w-full py-4 rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-black text-sm tracking-wider shadow-xl shadow-cyan-500/20 transition">
+        <i class="fa-solid fa-paper-plane mr-2"></i> অনুমোদনের জন্য জমা দিন
+      </button>
+    </form>
+
+  </div>
+
+  <script>
+    let activeUser = null;
+    let base64UploadedImage = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const rawUser = localStorage.getItem('asolNokolUser');
+      if (!rawUser) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      activeUser = JSON.parse(rawUser);
+
+      document.getElementById('displayOrgName').innerText = activeUser.org_name || activeUser.full_name || 'N/A';
+      document.getElementById('displayUserId').innerText = `#AN-${activeUser.phone_number ? activeUser.phone_number.slice(-4) : '2070'}`;
+      document.getElementById('displayPhone').innerText = activeUser.phone_number || 'N/A';
+    });
+
+    function previewImageFile(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          base64UploadedImage = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    async function handleGigSubmit(e) {
+      e.preventDefault();
+      
+      const userId = activeUser.id || localStorage.getItem('user_id');
+      const title = document.getElementById('gigTitle').value.trim();
+      const code = document.getElementById('itemCode').value.trim();
+      const price = document.getElementById('gigPrice').value.trim();
+      const directUrl = document.getElementById('gigImageUrl').value.trim();
+      const shortDesc = document.getElementById('gigShortDesc').value.trim();
+      const longDesc = document.getElementById('gigLongDesc').value.trim();
+      const showPhone = document.getElementById('showPhoneCheck').checked;
+      const submitBtn = document.getElementById('submitBtn');
+
+      const finalImageUrl = directUrl || base64UploadedImage || null;
+
+      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> সাবমিট করা হচ্ছে...`;
+      submitBtn.disabled = true;
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('gigs')
+          .insert([
+            {
+              user_id: userId,
+              gig_title: title,
+              short_description: shortDesc,
+              gig_description: longDesc,
+              item_code: code || null,
+              price: price ? parseFloat(price) : null,
+              image_url: finalImageUrl,
+              show_phone: showPhone,
+              status: 'pending'
+            }
+          ]);
+
+        if (error) throw error;
+
+        alert("আপনার সার্ভিস বা ডকুমেন্ট সফলভাবে জমা দেওয়া হয়েছে! অ্যাডমিন অ্যাপ্রুভ করলে ড্যাশবোর্ডে QR কোড পেয়ে যাবেন।");
+        window.location.href = "dashboardmine.html";
+
+      } catch (err) {
+        console.error("Submission Error:", err);
+        alert("জমা দিতে সমস্যা হয়েছে!");
+      } finally {
+        submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane mr-2"></i> অনুমোদনের জন্য জমা দিন`;
+        submitBtn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>আসল নকল - ভেরিফিকেশন স্ট্যাটাস</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Supabase JS SDK & Config -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabaseconfig.js"></script>
+
+  <style>
+    body {
+      background: #090d16;
+      color: #f0f6fc;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .glass-card {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 relative overflow-x-hidden">
+
+  <!-- Background Glowing Effects -->
+  <div class="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-amber-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+  <!-- Main Container -->
+  <div class="glass-card w-full max-w-lg rounded-3xl p-8 text-center relative z-10 space-y-6">
+    
+    <!-- Status Icon Animation -->
+    <div class="w-20 h-20 mx-auto rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-3xl shadow-lg shadow-amber-500/20 animate-pulse">
+      <i class="fa-solid fa-hourglass-half"></i>
+    </div>
+
+    <!-- Header Text -->
+    <div>
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold mb-3">
+        <i class="fa-solid fa-triangle-exclamation"></i> যাচাইকরণের অপেক্ষায়
+      </div>
+      <h1 class="text-2xl font-bold tracking-tight text-white">আপনার অ্যাকাউন্টটি পেন্ডিং আছে</h1>
+      <p class="text-gray-400 text-sm mt-2 leading-relaxed">
+        আপনার দেওয়া ডকুমেন্টস ও তথ্যগুলো আমাদের টিম যাচাই-বাছাই করছে। অ্যাডমিন অনুমোদন দিলেই নিচের বাটন দিয়ে বা অটোমেটিক ড্যাশবোর্ডে প্রবেশ করতে পারবেন।
+      </p>
+    </div>
+
+    <!-- User Info Box -->
+    <div class="bg-gray-900/60 border border-gray-800 rounded-2xl p-4 text-left space-y-2 text-sm">
+      <div class="flex justify-between border-b border-gray-800 pb-2">
+        <span class="text-gray-400">নাম:</span>
+        <span id="userName" class="font-semibold text-white">লোড হচ্ছে...</span>
+      </div>
+      <div class="flex justify-between border-b border-gray-800 pb-2">
+        <span class="text-gray-400">মোবাইল:</span>
+        <span id="userPhone" class="font-semibold text-white">লোড হচ্ছে...</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-400">স্ট্যাটাস:</span>
+        <span id="statusBadge" class="font-bold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full text-xs">Pending (অপেক্ষমাণ)</span>
+      </div>
+    </div>
+
+    <!-- Actions & Support -->
+    <div class="pt-2 space-y-3">
+      <button id="checkBtn" onclick="checkStatusAgain()" class="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-bold shadow-lg shadow-blue-500/25 transition flex items-center justify-center gap-2">
+        <i class="fa-solid fa-rotate"></i> স্ট্যাটাস চেক করুন
+      </button>
+
+      <!-- Live Chat / WhatsApp Support Button -->
+      <a href="https://wa.me/8801700000000?text=হ্যালো,%20আমার%20ভেরিফিকেশনটি%20পেন্ডিং%20রয়েছে।%20দয়া করে%20সহযোগিতা%20করুন।" target="_blank" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-sm font-bold shadow-lg shadow-emerald-500/25 transition flex items-center justify-center gap-2">
+        <i class="fa-brands fa-whatsapp text-lg"></i> অ্যাডমিনের সাথে লাইভ চ্যাট করুন
+      </a>
+
+      <a href="login.html" class="block w-full py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold transition">
+        <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> লগআউট করুন
+      </a>
+    </div>
+
+  </div>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const userData = JSON.parse(localStorage.getItem('asolNokolUser'));
+      if (userData) {
+        document.getElementById('userName').innerText = userData.full_name || 'N/A';
+        document.getElementById('userPhone').innerText = userData.phone_number || 'N/A';
+        
+        // ব্যাকগ্রাউন্ডে একবার স্ট্যাটাস চেক করে নেওয়া ভালো
+        checkStatusAgain(true);
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    // Supabase থেকে রিয়েল-টাইম স্ট্যাটাস চেক করার ফাংশন
+    async function checkStatusAgain(isAuto = false) {
+      const userData = JSON.parse(localStorage.getItem('asolNokolUser'));
+      if (!userData || !userData.phone_number) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const btn = document.getElementById('checkBtn');
+      if (!isAuto) {
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> যাচাই করা হচ্ছে...`;
+        btn.disabled = true;
+      }
+
+      try {
+        // সুপাবেস থেকে ইউজারের লেটেস্ট ডেটা ফেচ করা
+        const { data, error } = await supabaseClient
+          .from('registrations')
+          .select('*')
+          .eq('phone_number', userData.phone_number);
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          const freshUser = data[0];
+
+          // লোকালস্টোরেজ আপডেট করা
+          localStorage.setItem('asolNokolUser', JSON.stringify(freshUser));
+
+          // যদি স্ট্যাটাস approved হয়, তবে সোজা ড্যাশবোর্ডে পাঠাবে
+          if (freshUser.status && freshUser.status.toLowerCase() === 'approved') {
+            alert("অভিনন্দন! আপনার অ্যাকাউন্টটি সফলভাবে অনুমোদিত হয়েছে।");
+            window.location.href = "dashboardmine.html";
+            return;
+          }
+        }
+
+        if (!isAuto) {
+          alert("আপনার স্ট্যাটাস এখনো পেন্ডিং রয়েছে। অ্যাডমিন অনুমোদন দেওয়ার পর আবার চেষ্টা করুন।");
+        }
+
+      } catch (err) {
+        console.error("Status Check Error:", err);
+        if (!isAuto) {
+          alert("স্ট্যাটাস চেক করতে সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন।");
+        }
+      } finally {
+        if (!isAuto) {
+          btn.innerHTML = `<i class="fa-solid fa-rotate"></i> স্ট্যাটাস চেক করুন`;
+          btn.disabled = false;
+        }
+      }
+    }
+  </script>
+</body>
+</html>

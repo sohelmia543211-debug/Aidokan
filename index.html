@@ -1,0 +1,215 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asol Nokol - ২০৫০ ফিউচারিস্টিক ভেরিফিকেশন নেটওয়ার্ক</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Futuristic Navbar -->
+    <header class="navbar">
+        <div class="logo">
+            <i class="fa-solid fa-shield-halved glow-icon"></i> Asol<span>Nokol</span>
+        </div>
+        <nav class="nav-links">
+            <a href="#verifier">স্ক্যানার</a>
+            <a href="#about">আমাদের লক্ষ্য</a>
+            <a href="#sectors">ক্যাটাগরি</a>
+            <a href="#howitworks">কীভাবে কাজ করে</a>
+            <a href="#stats">নেটওয়ার্ক স্ট্যাটস</a>
+        </nav>
+        <div class="auth-buttons">
+            <button class="btn-login" onclick="alert('লগইন পেজ ওপেন হচ্ছে...')"><i class="fa-solid fa-right-to-bracket"></i> লগইন</button>
+            <div class="dropdown">
+                <button class="btn-register"><i class="fa-solid fa-user-plus"></i> রেজিস্ট্রেশন <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="dropdown-content">
+                    <a href="#"><i class="fa-solid fa-store"></i> মার্চেন্ট / ই-কমার্স</a>
+                    <a href="#"><i class="fa-solid fa-user-doctor"></i> ডাক্তার / ডায়াগনস্টিক</a>
+                    <a href="#"><i class="fa-solid fa-screwdriver-wrench"></i> টেকনিশিয়ান / কারিগর</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section (Scanner) -->
+    <section class="hero-section" id="verifier">
+        <div class="hero-content">
+            <span class="badge-tag">⚡ ১০০% নিরাপদ ডিজিটাল ভেরিফিকেশন নেটওয়ার্ক</span>
+            <h1>নকলের ভিড়ে আসল চিনে নিন <br><span class="highlight">এক ক্লিকেই!</span></h1>
+            <p>কসমেটিকস, ওষুধ, জুতো, ডাক্তার কিংবা ডায়াগনস্টিক রিপোর্ট—যেকোনো কিছু নেওয়ার আগে Asol Nokol ডিজিটাল ভেরিফাই করুন।</p>
+            
+            <div class="glass-card">
+                <div class="input-box">
+                    <i class="fa-solid fa-key icon-inside"></i>
+                    <input type="text" id="pinInput" placeholder="গোপন পিন লিখুন (যেমন: 8829)">
+                    <button id="verifyBtn" onclick="verifyPin()"><i class="fa-solid fa-bolt"></i> যাচাই করুন</button>
+                </div>
+                
+                <div class="divider-line"><span>অথবা</span></div>
+
+                <button class="scan-qr-btn" onclick="openScanner()">
+                    <i class="fa-solid fa-expand"></i> সরাসরি কিউআর (QR) স্ক্যান করুন
+                </button>
+            </div>
+
+            <!-- Verification Results -->
+            <div id="successResult" class="result-box success hidden">
+                <div class="res-header"><i class="fa-solid fa-shield-check"></i> অরিজিনাল ও ভেরিফাইড!</div>
+                <h3 id="productName">অরিজিনাল স্নিকার্স (A-Grade)</h3>
+                <p>ব্র্যান্ড: Apex Footwear Ltd. | ব্যাচ: <b>BATCH-2026-X9</b></p>
+            </div>
+
+            <div id="fakeResult" class="result-box danger hidden">
+                <div class="res-header"><i class="fa-solid fa-circle-xmark"></i> সতর্কবার্তা: নকল বা অবৈধ কোড!</div>
+                <p>আপনার কোডটি ডাটাবেজে নেই। জালিয়াতির আশঙ্কা রয়েছে।</p>
+            </div>
+
+            <div id="usedResult" class="result-box warning hidden">
+                <div class="res-header"><i class="fa-solid fa-triangle-exclamation"></i> সতর্কবার্তা: আগেই ব্যবহৃত পিন!</div>
+                <p>এই সিকিউরিটি কোডটি পূর্বে ব্যবহার করা হয়েছে।</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- About & Description Section (ব্যবহারকারীর জন্য বিস্তারিত বিবরণ) -->
+    <section class="about-section" id="about">
+        <div class="about-container">
+            <span class="badge-tag">🛡️ আমাদের লক্ষ্য ও সুবিধা</span>
+            <h2 class="section-title">কেন ব্যবহার করবেন <span>Asol Nokol</span>?</h2>
+            <p class="about-text">
+                <strong>Asol Nokol</strong> হলো একটি আধুনিক ডিজিটাল সততা যাচাইকরণ প্ল্যাটফর্ম। বাজারে নকল পণ্য, ভুয়া প্রসাধনী, অবৈধ ওষুধ, ভুয়া ডাক্তার এবং জালিয়াতি ল্যাব রিপোর্টের কারণে সাধারণ মানুষ যেন প্রতারিত না হয়—সেই লক্ষ্যে আমাদের এই একক ভেরিফিকেশন নেটওয়ার্ক।
+            </p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fa-solid fa-users"></i>
+                    <h3>সাধারণ গ্রাহকদের জন্য</h3>
+                    <p>পণ্য বা সেবা কেনার আগে গোপন সিকিউরিটি পিন বা কিউআর কোড স্ক্যান করে এক সেকেন্ডেই আসল-নকল সুনিশ্চিত হতে পারবেন।</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fa-solid fa-store"></i>
+                    <h3>ব্র্যান্ড ও মার্চেন্টদের জন্য</h3>
+                    <p>আপনার তৈরি অরিজিনাল পণ্যে ইউনিক পিন কোড যুক্ত করে নকল বা ডুপ্লিকেট করা থেকে নিজের ব্যবসা ও ব্র্যান্ডের সুনাম রক্ষা করুন।</p>
+                </div>
+
+                <div class="feature-card">
+                    <i class="fa-solid fa-user-check"></i>
+                    <h3>প্রফেশনালদের জন্য</h3>
+                    <p>ডাক্তার, প্যাথলজি ল্যাব ও দক্ষ কারিগররা তাদের আসল লাইসেন্স ও সনদ ডিজিটাল ভেরিফাই করে রোগীদের ও গ্রাহকদের আস্থা অর্জন করতে পারেন।</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sectors Grid (10 Sectors) -->
+    <section class="sectors-section" id="sectors">
+        <h2 class="section-title">যেসব খাতে <span>Asol Nokol</span> কাজ করে</h2>
+        <div class="sectors-grid">
+            <div class="sector-card">
+                <i class="fa-solid fa-shirt"></i>
+                <h3>ফ্যাশন ও জুতো</h3>
+                <p>ব্র্যান্ডেড স্নিকার্স, জামাকাপড় ও লেদার গুডসের অরিজিনালিটি যাচাই।</p>
+            </div>
+            <div class="sector-card">
+                <i class="fa-solid fa-spray-can-sparkles"></i>
+                <h3>কসমেটিকস ও প্রসাধনী</h3>
+                <p>আসল স্কিনকেয়ার ও ইম্পোর্টেড বিউটি প্রোডাক্ট চেনার মাধ্যম।</p>
+            </div>
+            <div class="sector-card">
+                <i class="fa-solid fa-user-doctor"></i>
+                <h3>ডাক্তার ও বিএমডিসি</h3>
+                <p>ডাক্তারের আসল লাইসেন্স, ডিগ্রি ও চেম্বার তথ্য ভেরিফিকেশন।</p>
+            </div>
+            <div class="sector-card">
+                <i class="fa-solid fa-vial-virus"></i>
+                <h3>ডায়াগনস্টিক রিপোর্ট</h3>
+                <p>প্যাথলজি ও ল্যাব রিপোর্টের ডিজিটাল সত্যতা পরীক্ষা।</p>
+            </div>
+            <div class="sector-card">
+                <i class="fa-solid fa-microchip"></i>
+                <h3>গ্যাজেট ও ইলেক্ট্রনিক্স</h3>
+                <p>আসল চার্জার, হেডফোন ও হোম অ্যাপ্লায়েন্স সিকিউরিটি।</p>
+            </div>
+            <div class="sector-card">
+                <i class="fa-solid fa-screwdriver-wrench"></i>
+                <h3>দক্ষ কারিগর ও মিস্ত্রি</h3>
+                <p>এনআইডি ভেরিফাইড এসি টেকনিশিয়ান, প্লাম্বার ও ইলেকট্রিশিয়ান।</p>
+            </div>
+            <div class="sector-card">
+                <i class="fa-solid fa-apple-whole"></i>
+                <h3>ফলমূল ও অর্গানিক ফুড</h3>
+                <p>ব্যাচ-ট্র্যাকিং স্টিকারের মাধ্যমে তাজা ফল ও খাদ্য যাচাই।</p>
+            </div>
+            <div class="sector-card">
+                <i class="fa-solid fa-graduation-cap"></i>
+                <h3>শিক্ষা সনদ ও সার্টিফিকেট</h3>
+                <p>বিশ্ববিদ্যালয় ও ট্রেনিং সেন্টারের প্রফেশনাল সনদ ভেরিফিকেশন।</p>
+            </div>
+            <div class="sector-card">
+                <i class="fa-solid fa-wheat-awn"></i>
+                <h3>কৃষি বীজ ও সার</h3>
+                <p>কৃষকদের জন্য খাঁটি বীজ, কীটনাশক ও সার সুনিশ্চিতকরণ।</p>
+            </div>
+            <div class="sector-card">
+                <i class="fa-solid fa-car-battery"></i>
+                <h3>অটোমোবাইল পার্টস</h3>
+                <p>গাড়ির জেনুইন স্পেয়ার পার্টস, ইঞ্জিন অয়েল ও ব্যাটারি চেক।</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works" id="howitworks">
+        <h2 class="section-title">কীভাবে <span>Asol Nokol</span> কাজ করে?</h2>
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-num">১</div>
+                <h3>কোড স্ক্র্যাচ করুন</h3>
+                <p>পণ্য বা রিপোর্টের সিকিউরিটি স্টিকার ঘষে গোপন পিন বের করুন।</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">২</div>
+                <h3>পিন ইনপুট বা QR স্ক্যান</h3>
+                <p>Asol Nokol স্ক্যানারে পিন লিখুন অথবা ক্যামেরা দিয়ে কিউআর স্ক্যান করুন।</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">৩</div>
+                <h3>তাৎক্ষণিক রেজাল্ট</h3>
+                <p>সেকেন্ডের মধ্যে আসল পণ্যের বিস্তারিত তথ্য ও সততা যাচাইয়ের সনদ দেখুন।</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Stats Bar -->
+    <section class="stats-bar" id="stats">
+        <div class="stat-item">
+            <h2>১,৫০,০০০+</h2>
+            <p>সুরক্ষিত পণ্য ও সার্ভিস</p>
+        </div>
+        <div class="stat-item">
+            <h2>১২৮+</h2>
+            <p>ভেরিফাইড ই-কমার্স ও ব্র্যান্ড</p>
+        </div>
+        <div class="stat-item">
+            <h2>৪৫+</h2>
+            <p>অনুমোদিত ডাক্তার ও ল্যাব</p>
+        </div>
+        <div class="stat-item">
+            <h2>১০০%</h2>
+            <p>ডিজিটাল এনক্রিপশন সিকিউরিটি</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; ২০২৬-২০৫০ Asol Nokol Verification Network. All Rights Reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

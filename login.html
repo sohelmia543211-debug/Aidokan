@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asol Nokol - লগইন</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Supabase Official JS SDK & Config -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabaseconfig.js"></script>
+
+  <style>
+    body {
+      background: #090d16;
+      color: #f0f6fc;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .glass-card {
+      background: rgba(17, 24, 39, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+
+    .glass-input {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fff;
+      transition: all 0.3s ease;
+    }
+
+    .glass-input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+      outline: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 relative overflow-x-hidden">
+
+  <!-- Background Glowing Effects -->
+  <div class="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+  <!-- Main Container -->
+  <div class="glass-card w-full max-w-md rounded-3xl p-6 sm:p-10 my-6 relative z-10">
+
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold mb-3">
+        <i class="fa-solid fa-shield-halved"></i> আসল নকল ভেরিফিকেশন প্ল্যাটফর্ম
+      </div>
+      <h1 class="text-3xl font-bold tracking-tight text-white">লগইন করুন</h1>
+      <p class="text-gray-400 text-sm mt-1">আপনার মোবাইল নম্বর ও পাসওয়ার্ড দিয়ে প্রবেশ করুন</p>
+    </div>
+
+    <!-- Login Form -->
+    <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+      <div>
+        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">মোবাইল নম্বর</label>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400">
+            <i class="fa-solid fa-phone text-sm"></i>
+          </span>
+          <input type="tel" id="loginPhone" required class="w-full glass-input rounded-xl pl-10 pr-4 py-3 text-sm" placeholder="01700000000">
+        </div>
+      </div>
+
+      <div>
+        <div class="flex justify-between items-center mb-1">
+          <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider">পাসওয়ার্ড</label>
+          <button type="button" onclick="openForgotModal()" class="text-xs text-blue-400 hover:underline">পাসওয়ার্ড ভুলে গেছেন?</button>
+        </div>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400">
+            <i class="fa-solid fa-lock text-sm"></i>
+          </span>
+          <input type="password" id="loginPassword" required class="w-full glass-input rounded-xl pl-10 pr-4 py-3 text-sm" placeholder="পাসওয়ার্ড দিন">
+        </div>
+      </div>
+
+      <div id="errorMessage" class="text-xs text-red-400 hidden bg-red-500/10 border border-red-500/20 p-3 rounded-xl text-center">
+        <!-- Error message will be injected here -->
+      </div>
+
+      <button type="submit" id="loginBtn" class="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-bold shadow-lg shadow-blue-500/25 transition mt-2">
+        <i class="fa-solid fa-right-to-bracket mr-1"></i> লগইন করুন
+      </button>
+
+      <div class="text-center mt-6 pt-4 border-t border-gray-800 text-xs text-gray-400">
+        নতুন অ্যাকাউন্ট তৈরি করতে চান? 
+        <a href="register.html" class="text-blue-400 hover:underline font-semibold">রেজিস্ট্রেশন করুন</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- FORGOT PASSWORD MODAL -->
+  <div id="forgotModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md hidden">
+    <div class="glass-card w-full max-w-md rounded-3xl p-6 sm:p-8 relative">
+      <button onclick="closeForgotModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <h2 class="text-xl font-bold text-white mb-1"><i class="fa-solid fa-key text-blue-400 mr-2"></i>পাসওয়ার্ড রিসেট করুন</h2>
+      <p class="text-xs text-gray-400 mb-6">আপনার মোবাইল নম্বরে ওটিপি (OTP) পাঠিয়ে নতুন পাসওয়ার্ড সেট করুন।</p>
+
+      <!-- Step 1: Send OTP -->
+      <div id="resetStep1" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">রেজিস্টার্ড মোবাইল নম্বর</label>
+          <input type="tel" id="resetPhone" class="w-full glass-input rounded-xl px-4 py-3 text-sm" placeholder="01700000000">
+        </div>
+        <button type="button" onclick="sendResetOtp()" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition">
+          ওটিপি (OTP) পাঠান
+        </button>
+      </div>
+
+      <!-- Step 2: Verify OTP & Set New Password -->
+      <div id="resetStep2" class="space-y-4 hidden">
+        <p class="text-xs text-amber-400 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20">
+          <i class="fa-solid fa-circle-info mr-1"></i> টেস্টিং ওটিপি কোড: <b>1234</b>
+        </p>
+        <div>
+          <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">ওটিপি কোড (OTP) *</label>
+          <input type="text" id="resetOtp" class="w-full glass-input rounded-xl px-4 py-3 text-sm" placeholder="1234">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">নতুন পাসওয়ার্ড *</label>
+          <input type="password" id="newPassword" class="w-full glass-input rounded-xl px-4 py-3 text-sm" placeholder="কমপক্ষে ৬ অক্ষর">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">নতুন পাসওয়ার্ড নিশ্চিত করুন *</label>
+          <input type="password" id="confirmNewPassword" class="w-full glass-input rounded-xl px-4 py-3 text-sm" placeholder="পুনরায় পাসওয়ার্ড দিন">
+        </div>
+        <button type="button" onclick="submitNewPassword()" id="resetSubmitBtn" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition">
+          পাসওয়ার্ড পরিবর্তন করুন
+        </button>
+      </div>
+
+      <div id="modalMsg" class="mt-4 text-xs text-center hidden"></div>
+    </div>
+  </div>
+
+  <script>
+    // LOGIN FUNCTION
+    async function handleLogin(e) {
+      e.preventDefault();
+      
+      const phone = document.getElementById('loginPhone').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      const loginBtn = document.getElementById('loginBtn');
+      const errorMessage = document.getElementById('errorMessage');
+
+      errorMessage.classList.add('hidden');
+
+      loginBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> তথ্য যাচাই করা হচ্ছে...`;
+      loginBtn.disabled = true;
+
+      try {
+        // Supabase-এ মোবাইল নম্বর দিয়ে ইউজার খোঁজা
+        const { data, error } = await supabaseClient
+          .from('registrations')
+          .select('*')
+          .eq('phone_number', phone);
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          throw new Error("এই মোবাইল নম্বর দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি!");
+        }
+
+        const user = data[0];
+
+        // পাসওয়ার্ড পরীক্ষা করা
+        if (user.password_hash !== password) {
+          throw new Error("ভুল পাসওয়ার্ড! অনুগ্রহ করে সঠিক পাসওয়ার্ড দিন।");
+        }
+
+        // সেশন ডাটা ও ইউজার আইডি লোকালস্টোরেজে সেভ রাখা
+        localStorage.setItem('asolNokolUser', JSON.stringify(user));
+        localStorage.setItem('user_id', user.id); // পেমেন্ট পেজের জন্য ইউজার আইডি সেভ করা হলো
+
+        // ১. যদি স্ট্যাটাস pending হয়, তবে সরাসরি fastdashboard.html এ পাঠিয়ে দিবে
+        if (!user.status || user.status === 'pending') {
+          window.location.href = "fastdashboard.html";
+          return;
+        }
+
+        // ২. যদি স্ট্যাটাস approved হয়, তবে ক্যাটাগরি অনুযায়ী মূল ড্যাশবোর্ডে পাঠাবে
+        const category = user.main_category;
+        if (category === 'merchant') {
+          window.location.href = "marchent_dashboard.html";
+        } else if (category === 'health') {
+          window.location.href = "doctor_dashboard.html";
+        } else if (category === 'lab') {
+          window.location.href = "lab_dashboard.html";
+        } else {
+          window.location.href = "otherpymntmathead.html"; // নন-মার্চেন্টদের জন্য পেমেন্ট পেজে রিডাইরেক্ট করা হলো
+        }
+
+      } catch (err) {
+        console.error("Login Error:", err);
+        errorMessage.innerText = err.message || "লগইন করতে সমস্যা হয়েছে!";
+        errorMessage.classList.remove('hidden');
+        loginBtn.innerHTML = `<i class="fa-solid fa-right-to-bracket mr-1"></i> লগইন করুন`;
+        loginBtn.disabled = false;
+      }
+    }
+
+    // FORGOT PASSWORD MODAL FUNCTIONS
+    function openForgotModal() {
+      document.getElementById('forgotModal').classList.remove('hidden');
+      document.getElementById('resetStep1').classList.remove('hidden');
+      document.getElementById('resetStep2').classList.add('hidden');
+      document.getElementById('modalMsg').classList.add('hidden');
+    }
+
+    function closeForgotModal() {
+      document.getElementById('forgotModal').classList.add('hidden');
+    }
+
+    async function sendResetOtp() {
+      const phone = document.getElementById('resetPhone').value.trim();
+      const msg = document.getElementById('modalMsg');
+
+      if (!phone || phone.length < 11) {
+        msg.className = "mt-4 text-xs text-center text-red-400 font-semibold";
+        msg.innerText = "অনুগ্রহ করে সঠিক মোবাইল নম্বর দিন!";
+        msg.classList.remove('hidden');
+        return;
+      }
+
+      msg.innerText = "মোবাইল নম্বর যাচাই করা হচ্ছে...";
+      msg.className = "mt-4 text-xs text-center text-blue-400 font-semibold";
+      msg.classList.remove('hidden');
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('registrations')
+          .select('phone_number')
+          .eq('phone_number', phone);
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          throw new Error("এই নম্বর দিয়ে কোনো অ্যাকাউন্ট নিবন্ধিত নেই!");
+        }
+
+        document.getElementById('resetStep1').classList.add('hidden');
+        document.getElementById('resetStep2').classList.remove('hidden');
+        msg.innerText = "ওটিপি (OTP) পাঠানো হয়েছে!";
+        msg.className = "mt-4 text-xs text-center text-emerald-400 font-semibold";
+
+      } catch (err) {
+        msg.className = "mt-4 text-xs text-center text-red-400 font-semibold";
+        msg.innerText = err.message || "সমস্যা হয়েছে!";
+      }
+    }
+
+    async function submitNewPassword() {
+      const phone = document.getElementById('resetPhone').value.trim();
+      const otp = document.getElementById('resetOtp').value.trim();
+      const newPass = document.getElementById('newPassword').value;
+      const confirmPass = document.getElementById('confirmNewPassword').value;
+      const msg = document.getElementById('modalMsg');
+      const submitBtn = document.getElementById('resetSubmitBtn');
+
+      if (otp !== "1234") {
+        msg.className = "mt-4 text-xs text-center text-red-400 font-semibold";
+        msg.innerText = "ভুল ওটিপি (OTP) কোড! '1234' লিখুন।";
+        msg.classList.remove('hidden');
+        return;
+      }
+
+      if (!newPass || newPass.length < 6) {
+        msg.className = "mt-4 text-xs text-center text-red-400 font-semibold";
+        msg.innerText = "নতুন পাসওয়ার্ড অন্তত ৬ অক্ষরের হতে হবে!";
+        msg.classList.remove('hidden');
+        return;
+      }
+
+      if (newPass !== confirmPass) {
+        msg.className = "mt-4 text-xs text-center text-red-400 font-semibold";
+        msg.innerText = "পাসওয়ার্ড দুটি মিলছে না!";
+        msg.classList.remove('hidden');
+        return;
+      }
+
+      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> আপডেট হচ্ছে...`;
+      submitBtn.disabled = true;
+
+      try {
+        // Supabase-এ পাসওয়ার্ড আপডেট করা
+        const { data, error } = await supabaseClient
+          .from('registrations')
+          .update({ password_hash: newPass })
+          .eq('phone_number', phone);
+
+        if (error) throw error;
+
+        alert("পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে! এখন নতুন পাসওয়ার্ড দিয়ে লগইন করুন।");
+        closeForgotModal();
+        document.getElementById('loginPhone').value = phone;
+        document.getElementById('loginPassword').value = newPass;
+
+      } catch (err) {
+        msg.className = "mt-4 text-xs text-center text-red-400 font-semibold";
+        msg.innerText = err.message || "পাসওয়ার্ড আপডেট করতে সমস্যা হয়েছে!";
+      } finally {
+        submitBtn.innerHTML = "পাসওয়ার্ড পরিবর্তন করুন";
+        submitBtn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

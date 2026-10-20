@@ -1,0 +1,45 @@
+body {
+  background: #030712;
+  color: #f8fafc;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Futuristic 2070 Glass Card with Neon Glow */
+.cyber-glass {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(59, 130, 246, 0.05);
+}
+
+.cyber-input {
+  background: rgba(3, 7, 18, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cyber-input:focus {
+  border-color: #06b6d4;
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+  outline: none;
+}
+
+.neon-glow-blue {
+  text-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
+}
+
+.neon-border {
+  position: relative;
+}
+.neon-border::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(90deg, #3b82f6, #06b6d4, #10b981);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0.4;
+  filter: blur(8px);
+}

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>আসল নকল - ইউনিভার্সাল রেজিস্ট্রেশন</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabaseconfig.js"></script>
+
+  <!-- register.css ফাইল লিংক যুক্ত করা হয়েছে -->
+  <link rel="stylesheet" href="register.css">
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 relative overflow-x-hidden">
+
+  <div class="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+  <div class="glass-card w-full max-w-2xl rounded-3xl p-6 sm:p-10 my-6 relative z-10">
+
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold mb-3">
+        <i class="fa-solid fa-shield-halved"></i> আসল নকল ভেরিফিকেশন প্ল্যাটফর্ম
+      </div>
+      <h1 class="text-3xl font-bold tracking-tight text-white">অ্যাকাউন্ট তৈরি করুন</h1>
+      <p class="text-gray-400 text-sm mt-1">পেশা বা ব্যবসার ধরন অনুযায়ী ভেরিফাইড প্রোফাইল রেজিস্টার করুন</p>
+    </div>
+
+    <!-- 6 Stepper Tracker -->
+    <div class="mb-10 relative">
+      <div class="absolute top-1/2 left-0 w-full h-1 bg-gray-800 -z-10 transform -translate-y-1/2 rounded-full"></div>
+      <div id="progress-bar" class="absolute top-1/2 left-0 h-1 bg-gradient-to-r from-blue-500 to-emerald-500 -z-10 transform -translate-y-1/2 rounded-full line-progress" style="width: 0%;"></div>
+
+      <div class="flex justify-between items-center">
+        <div class="flex flex-col items-center"><div id="step-circle-1" class="step-circle w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold border-2 border-blue-500 bg-blue-600 text-white text-xs shadow-lg">১</div><span class="text-[10px] text-gray-400 font-medium mt-1 hidden sm:block">ক্যাটাগরি</span></div>
+        <div class="flex flex-col items-center"><div id="step-circle-2" class="step-circle w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold border-2 border-gray-700 bg-gray-900 text-gray-400 text-xs">২</div><span class="text-[10px] text-gray-400 font-medium mt-1 hidden sm:block">ব্যক্তিগত</span></div>
+        <div class="flex flex-col items-center"><div id="step-circle-3" class="step-circle w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold border-2 border-gray-700 bg-gray-900 text-gray-400 text-xs">৩</div><span class="text-[10px] text-gray-400 font-medium mt-1 hidden sm:block">ওটিপি</span></div>
+        <div class="flex flex-col items-center"><div id="step-circle-4" class="step-circle w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold border-2 border-gray-700 bg-gray-900 text-gray-400 text-xs">৪</div><span class="text-[10px] text-gray-400 font-medium mt-1 hidden sm:block">প্রতিষ্ঠান</span></div>
+        <div class="flex flex-col items-center"><div id="step-circle-5" class="step-circle w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold border-2 border-gray-700 bg-gray-900 text-gray-400 text-xs">৫</div><span class="text-[10px] text-gray-400 font-medium mt-1 hidden sm:block">ডকুমেন্ট</span></div>
+        <div class="flex flex-col items-center"><div id="step-circle-6" class="step-circle w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold border-2 border-gray-700 bg-gray-900 text-gray-400 text-xs">৬</div><span class="text-[10px] text-gray-400 font-medium mt-1 hidden sm:block">যাচাই</span></div>
+      </div>
+    </div>
+
+    <!-- Form Container -->
+    <form id="multiStepForm" onsubmit="return false;">
+
+      <!-- STEP 1: Category -->
+      <div id="step-content-1" class="step-view space-y-4">
+        <h3 class="text-lg font-semibold text-gray-200 mb-2 flex items-center gap-2">
+          <i class="fa-solid fa-list-check text-blue-400"></i> ধাপ ১: আপনার মূল সেবা বা ক্যাটাগরি বেছে নিন
+        </h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">মূল ক্যাটাগরি *</label>
+            <select id="mainCategory" onchange="onMainCategoryChange()" class="w-full glass-input rounded-xl px-4 py-3 text-sm bg-gray-900 cursor-pointer">
+              <option value="">-- ক্যাটাগরি সিলেক্ট করুন --</option>
+              <option value="merchant">১. ব্র্যান্ড, ম্যানুফ্যাকচারিং ও মার্চেন্ট (Brand, Manufacturing & Merchant)</option>
+              <option value="health">২. স্বাস্থ্য ও চিকিৎসা সেবা (Health & Medical Services)</option>
+              <option value="lab">৩. ডায়াগনস্টিক, ল্যাব ও ফার্মেসি (Diagnostic, Lab & Pharmacy)</option>
+              <option value="technician">৪. দক্ষ কারিগর ও সার্ভিস টেকনিশিয়ান (Skilled Technician & Services)</option>
+              <option value="legal">৫. পেশাদার, ফ্রিল্যান্সার ও আইনি পরামর্শক (Professional, Freelancer & Legal)</option>
+              <option value="education">৬. শিক্ষা ও ইনস্টিটিউট (Education & Institute)</option>
+              <option value="logistics">৭. পরিবহন, কুরিয়ার ও লজিস্টিকস (Logistics & Courier)</option>
+              <option value="other">৮. অন্যান্য পেশা ও ব্যবসা (Other Professions & Business)</option>
+            </select>
+          </div>
+          <div id="subCategoryContainer" class="hidden">
+            <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">সাব-ক্যাটাগরি *</label>
+            <select id="subCategory" onchange="onSubCategoryChange()" class="w-full glass-input rounded-xl px-4 py-3 text-sm bg-gray-900 cursor-pointer">
+              <option value="">-- সাব-ক্যাটাগরি সিলেক্ট করুন --</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Basic Info, Password & Profile Image -->
+      <div id="step-content-2" class="step-view space-y-4 hidden">
+        <h3 class="text-lg font-semibold text-gray-200 mb-2 flex items-center gap-2">
+          <i class="fa-solid fa-id-card text-blue-400"></i> ধাপ ২: আপনার ব্যক্তিগত বিবরণ ও পাসওয়ার্ড
+        </h3>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">আপনার পূর্ণ নাম *</label>
+            <input type="text" id="name" class="w-full glass-input rounded-xl px-4 py-3 text-sm" placeholder="যেমন: আব্দুল্লাহ আজ্জাম">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">মোবাইল নম্বর (লগইন আইডি) *</label>
+            <input type="tel" id="phone" class="w-full glass-input rounded-xl px-4 py-3 text-sm" placeholder="01700000000">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">ইমেইল ঠিকানা</label>
+            <input type="email" id="email" class="w-full glass-input rounded-xl px-4 py-3 text-sm" placeholder="example@gmail.com">
+          </div>
+
+          <!-- PASSWORD FIELDS -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">পাসওয়ার্ড *</label>
+              <input type="password" id="password" class="w-full glass-input rounded-xl px-4 py-3 text-sm" placeholder="পাসওয়ার্ড দিন (কমপক্ষে ৬ অক্ষর)">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">পাসওয়ার্ড নিশ্চিত করুন *</label>
+              <input type="password" id="confirmPassword" class="w-full glass-input rounded-xl px-4 py-3 text-sm" placeholder="পুনরায় পাসওয়ার্ড দিন">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">প্রোফাইল ছবি / লোগো (ঐচ্ছিক)</label>
+            <div class="border-2 border-dashed border-gray-700 hover:border-blue-500 rounded-2xl p-4 transition bg-slate-900/40 relative">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 text-lg">
+                  <i class="fa-solid fa-user-circle"></i>
+                </div>
+                <div class="text-left flex-1">
+                  <p id="profile-label" class="text-xs font-semibold text-gray-200">আপনার ছবি বা লোগো আপলোড করুন</p>
+                  <p class="text-[10px] text-gray-500">PNG বা JPG ফরম্যাট</p>
+                </div>
+                <input type="file" id="profileImageInput" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="updateProfileLabel(event)">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: OTP Verification Step -->
+      <div id="step-content-3" class="step-view space-y-4 hidden">
+        <h3 class="text-lg font-semibold text-gray-200 mb-2 flex items-center gap-2">
+          <i class="fa-solid fa-shield-halved text-blue-400"></i> ধাপ ৩: মোবাইল নম্বর ওটিপি (OTP) যাচাই
+        </h3>
+        <div class="bg-blue-950/40 border border-blue-500/30 p-5 rounded-2xl space-y-4">
+          <p class="text-xs text-gray-300">আপনার প্রদান করা <span id="displayPhoneNo" class="text-blue-400 font-bold"></span> নম্বরে একটি ৪ ডিজিটের ওটিপি কোড পাঠানো হয়েছে। কোডটি নিচে লিখে ভেরিফাই করুন।</p>
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">ভেরিফিকেশন কোড (OTP) *</label>
+            <div class="flex gap-2">
+              <input type="text" id="registerOtp" class="w-full glass-input rounded-xl px-4 py-3 text-sm" placeholder="যেমন: 1234">
+              <button type="button" onclick="verifyOtpCode()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition whitespace-nowrap">ভেরিফাই করুন</button>
+            </div>
+            <p id="otpStatusText" class="text-[11px] text-amber-400 mt-2">টেস্টিং কোড: 1234</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4: Business/Professional Info -->
+      <div id="step-content-4" class="step-view space-y-4 hidden">
+        <h3 class="text-lg font-semibold text-gray-200 mb-2 flex items-center gap-2">
+          <i class="fa-solid fa-building-user text-blue-400"></i> ধাপ ৪: প্রতিষ্ঠান বা পেশাগত তথ্য
+        </h3>
+        <div class="space-y-3">
+          <div>
+            <label id="lbl_org_name" class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">প্রতিষ্ঠানের নাম / চেম্বার নাম *</label>
+            <input type="text" id="org_name" class="w-full glass-input rounded-xl px-4 py-3 text-sm" placeholder="আপনার প্রতিষ্ঠান বা ব্র্যান্ডের নাম">
+          </div>
+          <div>
+            <label id="lbl_reg_no" class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">প্রধান লাইসেন্স / রেজিস্ট্রেশন নম্বর *</label>
+            <input type="text" id="reg_no" class="w-full glass-input rounded-xl px-4 py-3 text-sm" placeholder="ট্রেড লাইসেন্স বা মূল নম্বর">
+          </div>
+          <div id="sec_reg_container">
+            <label id="lbl_sec_reg_no" class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">অন্যান্য অনুমোদন নম্বর (যদি থাকে)</label>
+            <input type="text" id="sec_reg_no" class="w-full glass-input rounded-xl px-4 py-3 text-sm" placeholder="ভ্যাট বা ড্রাগ লাইসেন্স নম্বর (ঐচ্ছিক)">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">ঠিকানা / এলাকা *</label>
+            <input type="text" id="org_address" class="w-full glass-input rounded-xl px-4 py-3 text-sm" placeholder="জেলা, থানা ও বিস্তারিত ঠিকানা">
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5: Document Upload -->
+      <div id="step-content-5" class="step-view space-y-4 hidden">
+        <h3 class="text-lg font-semibold text-gray-200 mb-2 flex items-center gap-2">
+          <i class="fa-solid fa-file-shield text-blue-400"></i> ধাপ ৫: প্রয়োজনীয় ভেরিফিকেশন ফাইল আপলোড
+        </h3>
+        <p class="text-xs text-gray-400 mb-3">আপনার সিলেক্ট করা সাব-ক্যাটাগরি অনুযায়ী ফাইল আপলোড করুন</p>
+        <div id="dynamicDocumentFields" class="space-y-4"></div>
+      </div>
+
+      <!-- STEP 6: Review & Confirm -->
+      <div id="step-content-6" class="step-view space-y-4 hidden">
+        <h3 class="text-lg font-semibold text-gray-200 mb-2 flex items-center gap-2">
+          <i class="fa-solid fa-clipboard-check text-emerald-400"></i> ধাপ ৬: আপনার দেওয়া তথ্যগুলো নিশ্চিত করুন
+        </h3>
+        <div class="glass-input p-5 rounded-2xl space-y-3 text-sm">
+          <div class="flex justify-between border-b border-gray-800 pb-2"><span class="text-gray-400">মূল ক্যাটাগরি:</span><span id="rev-cat" class="font-bold text-blue-400"></span></div>
+          <div class="flex justify-between border-b border-gray-800 pb-2"><span class="text-gray-400">সাব-ক্যাটাগরি:</span><span id="rev-subcat" class="font-semibold text-white"></span></div>
+          <div class="flex justify-between border-b border-gray-800 pb-2"><span class="text-gray-400">পূর্ণ নাম:</span><span id="rev-name" class="font-semibold text-white"></span></div>
+          <div class="flex justify-between border-b border-gray-800 pb-2"><span class="text-gray-400">মোবাইল:</span><span id="rev-phone" class="font-semibold text-white"></span></div>
+          <div class="flex justify-between border-b border-gray-800 pb-2"><span class="text-gray-400">প্রতিষ্ঠানের নাম:</span><span id="rev-org" class="font-semibold text-white"></span></div>
+          <div class="flex justify-between"><span class="text-gray-400">মূল লাইসেন্স/রেজিঃ:</span><span id="rev-reg" class="font-semibold text-white"></span></div>
+        </div>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="flex justify-between items-center mt-8 pt-4 border-t border-gray-800">
+        <button type="button" id="prevBtn" onclick="changeStep(-1)" class="px-5 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm font-semibold transition hidden">
+          <i class="fa-solid fa-arrow-left mr-1"></i> পিছনে
+        </button>
+        <button type="button" id="nextBtn" onclick="changeStep(1)" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-bold shadow-lg shadow-blue-500/25 transition ml-auto">
+          পরবর্তী <i class="fa-solid fa-arrow-right ml-1"></i>
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <script>
+    function updateProfileLabel(e) {
+      const file = e.target.files[0];
+      if (file) {
+        document.getElementById('profile-label').innerHTML = `<span class="text-emerald-400"><i class="fa-solid fa-check-circle mr-1"></i> ${file.name} নির্বাচিত হয়েছে</span>`;
+      }
+    }
+  </script>
+
+  <script src="register.js"></script>
+</body>
+</html>
