@@ -6,8 +6,11 @@
     <title>মাসিক সাবস্ক্রিপশন ও পেমেন্ট - আসল নকল</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Supabase JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabaseconfig.js"></script>
     <style>
         body {
             background-color: #0b0f19;
@@ -42,10 +45,10 @@
         <!-- হেডার অংশ -->
         <div class="text-center mb-8 px-2">
             <h1 class="text-2xl sm:text-3xl font-black mb-2 text-white">মাসিক সাবস্ক্রিপশন প্যাকেজ</h1>
-            <p class="text-gray-400 text-xs sm:text-sm">আপনার ব্যবসার প্রয়োজন অনুযায়ী যেকোনো একটি প্যাকেজ বেছে নিন।</p>
+            <p class="text-gray-400 text-xs sm:text-sm">আপনার ব্যবসার প্রয়োজন অনুযায়ী যেকোনো একটি প্যাকেজ বেছে নিন।</p>
         </div>
 
-        <!-- ১০টি মাসিক প্যাকেজ গ্রিড (মোবাইলে ১ কলাম, ট্যাবলেটে ২, বড় স্ক্রিনে ৩/৪ কলাম) -->
+        <!-- ১০টি মাসিক প্যাকেজ গ্রিড -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-8">
             
             <!-- প্যাকেজ ১ -->
@@ -56,7 +59,7 @@
                     <div class="my-3">
                         <span class="text-2xl sm:text-3xl font-black text-sky-400">৩০০</span> <span class="text-xs text-gray-400 font-semibold">টাকা / মাস</span>
                     </div>
-                    <p class="text-[11px] sm:text-xs text-gray-400">ছোট ব্যবসায়ীদের জন্য সাশ্রয়ী মাসিক প্যাক।</p>
+                    <p class="text-[11px] sm:text-xs text-gray-400">ছোট ব্যবসায়ীদের জন্য সাশ্রয়ী মাসিক প্যাক।</p>
                 </div>
                 <button type="button" class="mt-4 w-full py-2.5 bg-sky-600 hover:bg-sky-700 rounded-xl text-xs font-bold transition shadow-md">প্যাকেজ সিলেক্ট করুন</button>
             </div>
@@ -69,7 +72,7 @@
                     <div class="my-3">
                         <span class="text-2xl sm:text-3xl font-black text-emerald-400">৫০০</span> <span class="text-xs text-gray-400 font-semibold">টাকা / মাস</span>
                     </div>
-                    <p class="text-[11px] sm:text-xs text-gray-400">নিয়মিত ছোট ব্যবসার জন্য উপযুক্ত।</p>
+                    <p class="text-[11px] sm:text-xs text-gray-400">নিয়মিত ছোট ব্যবসার জন্য উপযুক্ত।</p>
                 </div>
                 <button type="button" class="mt-4 w-full py-2.5 bg-sky-600 hover:bg-sky-700 rounded-xl text-xs font-bold transition shadow-md">প্যাকেজ সিলেক্ট করুন</button>
             </div>
@@ -96,7 +99,7 @@
                     <div class="my-3">
                         <span class="text-2xl sm:text-3xl font-black text-amber-400">২,০০০</span> <span class="text-xs text-gray-400 font-semibold">টাকা / মাস</span>
                     </div>
-                    <p class="text-[11px] sm:text-xs text-gray-400">বাড়তি চাহিদার জন্য আদর্শ প্যাকেজ।</p>
+                    <p class="text-[11px] sm:text-xs text-gray-400">বাড়তি চাহিদার জন্য আদর্শ প্যাকেজ।</p>
                 </div>
                 <button type="button" class="mt-4 w-full py-2.5 bg-sky-600 hover:bg-sky-700 rounded-xl text-xs font-bold transition shadow-md">প্যাকেজ সিলেক্ট করুন</button>
             </div>
@@ -109,7 +112,7 @@
                     <div class="my-3">
                         <span class="text-2xl sm:text-3xl font-black text-purple-400">৭,০০০</span> <span class="text-xs text-gray-400 font-semibold">টাকা / মাস</span>
                     </div>
-                    <p class="text-[11px] sm:text-xs text-gray-400">বড় মার্চেন্ট ও ডিস্ট্রিবিউটরদের জন্য।</p>
+                    <p class="text-[11px] sm:text-xs text-gray-400">বড় মার্চেন্ট ও ডিস্ট্রিবিউটরদের জন্য।</p>
                 </div>
                 <button type="button" class="mt-4 w-full py-2.5 bg-sky-600 hover:bg-sky-700 rounded-xl text-xs font-bold transition shadow-md">প্যাকেজ সিলেক্ট করুন</button>
             </div>
@@ -122,7 +125,7 @@
                     <div class="my-3">
                         <span class="text-2xl sm:text-3xl font-black text-blue-400">১০,০০০</span> <span class="text-xs text-gray-400 font-semibold">টাকা / মাস</span>
                     </div>
-                    <p class="text-[11px] sm:text-xs text-gray-400">বড় পরিসরের পাইকারি ব্যবসার জন্য।</p>
+                    <p class="text-[11px] sm:text-xs text-gray-400">বড় পরিসরের পাইকারি ব্যবসার জন্য।</p>
                 </div>
                 <button type="button" class="mt-4 w-full py-2.5 bg-sky-600 hover:bg-sky-700 rounded-xl text-xs font-bold transition shadow-md">প্যাকেজ সিলেক্ট করুন</button>
             </div>
@@ -161,7 +164,7 @@
                     <div class="my-3">
                         <span class="text-2xl sm:text-3xl font-black text-orange-400">২৫,০০০</span> <span class="text-xs text-gray-400 font-semibold">টাকা / মাস</span>
                     </div>
-                    <p class="text-[11px] sm:text-xs text-gray-400">বিশাল সাপ্লাই চেইন ও ইন্ডাস্ট্রিয়াল প্যাক।</p>
+                    <p class="text-[11px] sm:text-xs text-gray-400">বিশাল সাপ্লাই চেইন ও ইন্ডাস্ট্রিয়াল প্যাক।</p>
                 </div>
                 <button type="button" class="mt-4 w-full py-2.5 bg-sky-600 hover:bg-sky-700 rounded-xl text-xs font-bold transition shadow-md">প্যাকেজ সিলেক্ট করুন</button>
             </div>
@@ -182,37 +185,39 @@
 
         </div>
 
-        <!-- পেমেন্ট মাধ্যম ও ট্রানজেকশন সাবমিট ফর্ম (মোবাইল ফ্রেন্ডলি) -->
+        <!-- পেমেন্ট মাধ্যম ও ট্রানজেকশন সাবমিট ফর্ম -->
         <div id="payment-section" class="glass-card rounded-2xl p-4 sm:p-6 hidden max-w-2xl mx-auto shadow-2xl border border-sky-500/30">
             <h2 class="text-lg sm:text-xl font-black mb-3 text-center text-white">পেমেন্ট সম্পন্ন করার নির্দেশিকা</h2>
             
             <div class="bg-sky-950/70 border border-sky-500/40 p-4 rounded-xl mb-5 text-sky-200 text-center">
-                <p class="text-xs sm:text-sm mb-1">দয়া করে নিচের মার্চেন্ট নম্বরে সেন্ড মানি (Send Money) করুন:</p>
-                <p class="text-xl sm:text-2xl font-black text-white tracking-wider my-1.5">বিকাশ / নগদ: <span class="text-amber-400">01712345678</span></p>
+                <p class="text-xs sm:text-sm mb-1">দয়া করে নিচের মার্চেন্ট নম্বরে সেন্ড মানি (Send Money) করুন:</p>
+                <p class="text-lg sm:text-2xl font-black text-white tracking-wider my-1.5">
+                    বিকাশ / নগদ: <span id="display-payment-number" class="text-amber-400">লোড হচ্ছে...</span>
+                </p>
                 <p id="selected-plan-text" class="text-xs sm:text-sm font-bold text-emerald-400 mt-2 bg-black/30 py-1.5 px-3 rounded-lg inline-block"></p>
             </div>
 
             <div class="mb-4">
-                <label class="block text-xs sm:text-sm font-semibold text-gray-300 mb-2">কোন মাধ্যমে টাকা পাঠিয়েছেন?</label>
+                <label class="block text-xs sm:text-sm font-semibold text-gray-300 mb-2">কোন মাধ্যমে টাকা পাঠিয়েছেন?</label>
                 <div class="grid grid-cols-3 gap-2 sm:gap-3">
-                    <label class="border border-gray-700 rounded-xl p-2.5 flex items-center justify-center space-x-2 cursor-pointer hover:border-sky-500 transition bg-gray-900/50">
-                        <input type="radio" name="payment_method" value="bKash" class="text-sky-600 focus:ring-sky-500">
-                        <span class="font-bold text-xs sm:text-sm">বিকাশ</span>
+                    <label class="border border-gray-700 rounded-xl p-3 flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2 cursor-pointer hover:border-pink-500 transition bg-gray-900/50">
+                        <input type="radio" name="payment_method" value="bKash" class="text-pink-600 focus:ring-pink-500">
+                        <span class="font-bold text-xs sm:text-sm text-pink-500"><i class="fa-solid fa-wallet mr-1"></i> বিকাশ</span>
                     </label>
-                    <label class="border border-gray-700 rounded-xl p-2.5 flex items-center justify-center space-x-2 cursor-pointer hover:border-sky-500 transition bg-gray-900/50">
-                        <input type="radio" name="payment_method" value="Nagad" class="text-sky-600 focus:ring-sky-500">
-                        <span class="font-bold text-xs sm:text-sm">নগদ</span>
+                    <label class="border border-gray-700 rounded-xl p-3 flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2 cursor-pointer hover:border-orange-500 transition bg-gray-900/50">
+                        <input type="radio" name="payment_method" value="Nagad" class="text-orange-600 focus:ring-orange-500">
+                        <span class="font-bold text-xs sm:text-sm text-orange-500"><i class="fa-solid fa-mobile-screen-button mr-1"></i> নগদ</span>
                     </label>
-                    <label class="border border-gray-700 rounded-xl p-2.5 flex items-center justify-center space-x-2 cursor-pointer hover:border-sky-500 transition bg-gray-900/50">
+                    <label class="border border-gray-700 rounded-xl p-3 flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2 cursor-pointer hover:border-sky-500 transition bg-gray-900/50">
                         <input type="radio" name="payment_method" value="Card" class="text-sky-600 focus:ring-sky-500">
-                        <span class="font-bold text-xs sm:text-sm">কার্ড</span>
+                        <span class="font-bold text-xs sm:text-sm text-sky-400"><i class="fa-solid fa-credit-card mr-1"></i> কার্ড</span>
                     </label>
                 </div>
             </div>
 
             <div class="space-y-3.5 mb-5">
                 <div>
-                    <label class="block text-xs sm:text-sm font-semibold text-gray-300 mb-1.5">যে নম্বর থেকে টাকা পাঠিয়েছেন (Sender Number)</label>
+                    <label class="block text-xs sm:text-sm font-semibold text-gray-300 mb-1.5">যে নম্বর থেকে টাকা পাঠিয়েছেন (Sender Number)</label>
                     <input type="text" id="sender_phone" placeholder="যেমন: 01712345678" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-sky-500 text-xs sm:text-sm">
                 </div>
                 <div>
@@ -221,7 +226,7 @@
                 </div>
             </div>
 
-            <button onclick="submitPayment()" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 rounded-xl font-black text-sm sm:text-base transition shadow-lg shadow-emerald-600/30 cursor-pointer">
+            <button onclick="submitPayment()" id="submitBtn" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 rounded-xl font-black text-sm sm:text-base transition shadow-lg shadow-emerald-600/30 cursor-pointer">
                 সাবস্ক্রিপশন পেমেন্ট সাবমিট করুন
             </button>
         </div>
@@ -229,25 +234,39 @@
     </div>
 
     <script>
-        // Supabase Credentials
-        const SUPABASE_URL = 'https://dzytdijmabiebefhgkkc.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6eXRkaWptYWJpZWJlZmhna2tjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxOTE3MTAsImV4cCI6MjA4NTc2NzcxMH0.ni86vJbes2k0UmkpYp5gs-fqXF5uD9nzumAnfMpi9Hs';
-        
-        let supabaseClient;
-        try {
-            supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
-        } catch (e) {
-            console.error("Supabase Init Error:", e);
-        }
-
         let selectedPlanName = '';
         let selectedAmount = 0;
         let selectedQrLimit = 0;
 
-        // কার্ড ক্লিক হ্যান্ডলার
+        // ডাটাবেজ থেকে মার্চেন্ট পেমেন্ট নম্বর ডায়নামিক লোড করার ফাংশন
+        async function fetchPaymentNumber() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('payment_numbers')
+                    .select('bkash_number, nagad_number')
+                    .eq('id', 1)
+                    .single();
+
+                if (error) throw error;
+
+                if (data) {
+                    const numberText = data.bkash_number === data.nagad_number 
+                        ? data.bkash_number 
+                        : `${data.bkash_number} (বিকাশ) / ${data.nagad_number} (নগদ)`;
+                    document.getElementById('display-payment-number').innerText = numberText;
+                } else {
+                    document.getElementById('display-payment-number').innerText = '01712345678';
+                }
+            } catch (err) {
+                console.warn('Payment Number Fetch Error:', err.message);
+                document.getElementById('display-payment-number').innerText = '01712345678';
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            fetchPaymentNumber();
+
             const cards = document.querySelectorAll('.plan-card');
-            
             cards.forEach(card => {
                 card.addEventListener('click', function() {
                     cards.forEach(c => c.classList.remove('selected'));
@@ -266,58 +285,77 @@
 
         // পেমেন্ট সাবমিট করার ফাংশন
         async function submitPayment() {
-            if (!supabaseClient) {
-                alert('Supabase কানেকশন তৈরি করা সম্ভব হয়নি। দয়া করে পেজটি রিফ্রেশ করুন।');
-                return;
-            }
-
             const methodInput = document.querySelector('input[name="payment_method"]:checked');
             const senderPhone = document.getElementById('sender_phone').value.trim();
             const trxId = document.getElementById('trx_id').value.trim();
+            const submitBtn = document.getElementById('submitBtn');
 
             if (!methodInput) {
-                alert('দয়া করে বিকাশ, নগদ বা কার্ড এর মধ্যে যেকোনো একটি সিলেক্ট করুন।');
+                alert('দয়া করে বিকাশ, নগদ বা কার্ড এর মধ্যে যেকোনো একটি পেমেন্ট মেথড সিলেক্ট করুন।');
                 return;
             }
             if (!senderPhone || !trxId) {
-                alert('দয়া করে আপনার প্রেরক নম্বর এবং ট্রানজেকশন আইডি (TrxID) সঠিকভাবে লিখুন।');
+                alert('দয়া করে প্রেরক নম্বর এবং ট্রানজেকশন আইডি (TrxID) সঠিকভাবে লিখুন।');
                 return;
             }
 
+            const userPhone = localStorage.getItem('userPhone');
             const userData = JSON.parse(localStorage.getItem('asolNokolUser') || '{}');
-            const userId = userData.id || localStorage.getItem('user_id');
+            const phone = userPhone || userData.phone_number;
 
-            if (!userId) {
-                alert('ইউজার আইডি পাওয়া যায়নি! দয়া করে আবার লগইন করুন।');
+            if (!phone) {
+                alert('ইউজার সেশন পাওয়া যায়নি! দয়া করে আবার লগইন করুন।');
                 window.location.href = 'login.html';
                 return;
             }
 
-            const expiryDate = new Date();
-            expiryDate.setMonth(expiryDate.getMonth() + 1);
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'পেমেন্ট সাবমিট হচ্ছে...';
 
-            const { error } = await supabaseClient
-                .from('subscriptions')
-                .insert([
-                    {
-                        user_id: userId,
-                        plan_name: selectedPlanName,
-                        amount: selectedAmount,
-                        qr_limit: selectedQrLimit,
-                        payment_method: methodInput.value,
-                        sender_phone: senderPhone,
-                        trx_id: trxId,
-                        payment_status: 'Pending',
-                        expiry_date: expiryDate.toISOString()
+            try {
+                // ইউজারের প্রাইমারি UUID বের করা
+                const { data: user, error: userErr } = await supabaseClient
+                    .from('users')
+                    .select('id')
+                    .eq('phone_number', phone)
+                    .single();
+
+                if (userErr || !user) throw new Error('ইউজার আইডি ডাটাবেজে পাওয়া যায়নি!');
+
+                const expiryDate = new Date();
+                expiryDate.setMonth(expiryDate.getMonth() + 1);
+
+                const { error } = await supabaseClient
+                    .from('subscriptions')
+                    .insert([
+                        {
+                            user_id: user.id,
+                            plan_name: selectedPlanName,
+                            amount: selectedAmount,
+                            qr_limit: selectedQrLimit,
+                            payment_method: methodInput.value,
+                            sender_phone: senderPhone,
+                            trx_id: trxId,
+                            payment_status: 'Pending',
+                            expiry_date: expiryDate.toISOString()
+                        }
+                    ]);
+
+                if (error) {
+                    if (error.code === '23505') {
+                        alert('এই ট্রানজেকশন আইডি (TrxID) পূর্বে ব্যবহৃত হয়েছে। দয়া করে সঠিক TrxID ব্যবহার করুন।');
+                    } else {
+                        alert('সমস্যা হয়েছে: ' + error.message);
                     }
-                ]);
-
-            if (error) {
-                console.error(error);
-                alert('পেমেন্ট সাবমিট করতে সমস্যা হয়েছে: ট্রানজেকশন আইডি পূর্বে ব্যবহৃত হয়ে থাকতে পারে।');
-            } else {
-                alert('আপনার পেমেন্ট রিকোয়েস্ট সফলভাবে জমা হয়েছে! অ্যাডমিন যাচাই করার পর আপনার প্যাকেজটি সক্রিয় করে দেওয়া হবে।');
-                window.location.href = 'dashboardmine.html';
+                } else {
+                    alert('আপনার পেমেন্ট রিকোয়েস্ট সফলভাবে জমা হয়েছে! অ্যাডমিন যাচাই করার পর আপনার প্যাকেজটি সক্রিয় করে দেওয়া হবে।');
+                    window.location.href = 'dashboardmine.html';
+                }
+            } catch (err) {
+                alert('সমস্যা হয়েছে: ' + err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'সাবস্ক্রিপশন পেমেন্ট সাবমিট করুন';
             }
         }
     </script>

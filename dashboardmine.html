@@ -86,7 +86,7 @@
           </div>
         </div>
 
-        <!-- Action Navigation Buttons (Separate Pages) -->
+        <!-- Action Navigation Buttons -->
         <div class="w-full lg:w-auto flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0">
           <a href="create_gig.html" class="cyber-button-primary px-6 py-3.5 rounded-2xl font-extrabold text-xs sm:text-sm tracking-wide transition flex items-center justify-center gap-2.5 text-center">
             <i class="fa-solid fa-square-plus text-base"></i> নতুন পণ্য তৈরি করুন
@@ -110,24 +110,30 @@
           <p id="docBannerSub" class="text-xs text-slate-600 mt-0.5">ট্রেড লাইসেন্স, বিএমডিসি বা প্রয়োজনীয় কাগজপত্র সাবমিট বা আপডেট করতে নিচের বাটনে ক্লিক করুন।</p>
         </div>
       </div>
-      <!-- সঠিক ফাইলের নাম Documents.html (বড় হাতের D সহ) বসানো হয়েছে -->
       <a id="docBannerBtn" href="Documents.html" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-xs sm:text-sm shadow-lg shadow-amber-500/30 transition flex items-center justify-center gap-2.5 shrink-0">
         <i class="fa-solid fa-folder-open text-base"></i> ডকুমেন্টস আপলোড করুন
       </a>
     </div>
 
-    <!-- Telemetry Stats Grid -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- TELEMETRY & SUBSCRIPTION STATS GRID -->
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
       <div class="cyber-glass-light p-5 rounded-3xl border-l-4 border-l-sky-500 space-y-1.5 shadow-sm">
         <p class="text-[11px] text-slate-500 uppercase font-bold tracking-wider">মোট পণ্য</p>
         <p id="statGigCount" class="text-3xl font-black text-slate-900 font-mono">00</p>
         <p class="text-[10px] text-sky-600 font-mono font-semibold">লাইভ প্রোডাক্ট রেজিস্ট্রি</p>
       </div>
-      
+
+      <!-- নতুন সাবস্ক্রিপশন কার্ড -->
+      <div class="cyber-glass-light p-5 rounded-3xl border-l-4 border-l-amber-500 space-y-1.5 shadow-sm">
+        <p class="text-[11px] text-slate-500 uppercase font-bold tracking-wider">চলতি প্ল্যান</p>
+        <p id="statSubPlan" class="text-lg font-black text-slate-900 truncate">লোড হচ্ছে...</p>
+        <p id="statSubStatus" class="text-[10px] text-amber-600 font-mono font-bold">অপেক্ষা করুন</p>
+      </div>
+
       <div class="cyber-glass-light p-5 rounded-3xl border-l-4 border-l-cyan-500 space-y-1.5 shadow-sm">
-        <p class="text-[11px] text-slate-500 uppercase font-bold tracking-wider">সিকিউরিটি লেভেল</p>
-        <p class="text-base font-bold text-cyan-700 font-mono mt-1"><i class="fa-solid fa-shield-halved"></i> AES-256 SAFE</p>
-        <p class="text-[10px] text-cyan-600 font-mono">সুরক্ষিত গ্রিড</p>
+        <p class="text-[11px] text-slate-500 uppercase font-bold tracking-wider">কিউআর লিমিট</p>
+        <p id="statQrLimit" class="text-xl font-black text-slate-900 font-mono mt-1">0 QR</p>
+        <p class="text-[10px] text-cyan-600 font-mono">কোটা উপলব্ধ</p>
       </div>
       
       <div class="cyber-glass-light p-5 rounded-3xl border-l-4 border-l-emerald-500 space-y-1.5 shadow-sm">

@@ -38,7 +38,10 @@ window.addEventListener('DOMContentLoaded', async () => {
       // ৩. ডাইনামিক ডকুমেন্ট স্ট্যাটাস, ব্যাজ ও বাটন পারমিশন কন্ট্রোল
       updateDocumentAndPermissionStatus(data);
 
-      // ৪. ইউজার প্রোডাক্ট লোড
+      // ৪. ইউজারের কেনা সাবস্ক্রিপশন ও প্যাকেজ লোড করা
+      loadUserSubscription(data.id);
+
+      // ৫. ইউজার প্রোডাক্ট লোড
       loadUserProducts(data.id);
     }
   } catch (err) {
@@ -58,15 +61,10 @@ function updateDocumentAndPermissionStatus(user) {
   const statAccountStatus = document.getElementById('statAccountStatus');
   const merchantBadge = document.getElementById('merchantBadge');
 
-  // boolean is_verified চেক
   const isVerified = user.is_verified === true || user.is_verified === 'true';
   const hasDocuments = user.documents && (user.documents.doc_1_no || user.documents.doc_1_img);
 
-  // ==========================================
-  // ১. যদি is_verified === TRUE হয় (এডমিন এপ্রুভ করলে)
-  // ==========================================
   if (isVerified) {
-    // ব্যানার সবুজ
     bannerContainer.className = "cyber-glass-light rounded-3xl p-6 sm:p-8 border border-emerald-300/60 bg-gradient-to-r from-emerald-50/50 via-white to-sky-50/50 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-lg";
     bannerIcon.className = "w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-600 text-2xl shrink-0 mx-auto";
     bannerIcon.innerHTML = `<i class="fa-solid fa-circle-check"></i>`;
@@ -77,28 +75,20 @@ function updateDocumentAndPermissionStatus(user) {
     bannerBtn.className = "w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-xs sm:text-sm shadow-lg shadow-emerald-500/30 transition flex items-center justify-center gap-2.5 shrink-0";
     bannerBtn.innerHTML = `<i class="fa-solid fa-user-check text-base"></i> ভেরিফাইড ডকুমেন্টস দেখুন/আপডেট করুন`;
 
-    // স্ট্যাটাস ট্যাগ
     if (statusTag) statusTag.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> ভেরিফাইড মার্চেন্ট`;
     if (statAccountStatus) statAccountStatus.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> ভেরিফাইড`;
 
-    // প্রোফাইল পিকচার ব্যাজ -> সবুজ ACTIVE
     if (merchantBadge) {
       merchantBadge.className = "absolute -bottom-2 -right-2 bg-emerald-500 text-white text-[10px] px-2 py-0.5 rounded-md font-extrabold flex items-center gap-1 shadow";
       merchantBadge.innerHTML = `<i class="fa-solid fa-shield-check"></i> ACTIVE`;
     }
 
-    // "নতুন পণ্য তৈরি করুন" বাটন আনলক
     createGigBtns.forEach(btn => {
-      btn.onclick = null; // স্বাভাবিকভাবে create_gig.html পেজে যাবে
+      btn.onclick = null;
       btn.classList.remove('opacity-50', 'cursor-not-allowed');
     });
   } 
-  
-  // ==========================================
-  // ২. যদি is_verified === FALSE এবং ডকুমেন্ট আপলোড করা থাকে (PENDING)
-  // ==========================================
   else if (hasDocuments) {
-    // ব্যানার নীল
     bannerContainer.className = "cyber-glass-light rounded-3xl p-6 sm:p-8 border border-sky-300/60 bg-gradient-to-r from-sky-50/50 via-white to-indigo-50/50 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-lg";
     bannerIcon.className = "w-14 h-14 rounded-2xl bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-sky-600 text-2xl shrink-0 mx-auto";
     bannerIcon.innerHTML = `<i class="fa-solid fa-clock-rotate-left animate-spin"></i>`;
@@ -109,17 +99,14 @@ function updateDocumentAndPermissionStatus(user) {
     bannerBtn.className = "w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-black text-xs sm:text-sm shadow-lg shadow-sky-500/30 transition flex items-center justify-center gap-2.5 shrink-0";
     bannerBtn.innerHTML = `<i class="fa-solid fa-spinner text-base"></i> পেন্ডিং ডকুমেন্টস দেখুন`;
 
-    // স্ট্যাটাস ট্যাগ
     if (statusTag) statusTag.innerHTML = `<i class="fa-solid fa-clock text-sky-600"></i> ভেরিফিকেশন পেন্ডিং`;
     if (statAccountStatus) statAccountStatus.innerHTML = `<i class="fa-solid fa-clock text-amber-500"></i> পেন্ডিং`;
 
-    // প্রোফাইল পিকচার ব্যাজ -> অ্যাম্বার PENDING
     if (merchantBadge) {
       merchantBadge.className = "absolute -bottom-2 -right-2 bg-amber-500 text-white text-[10px] px-2 py-0.5 rounded-md font-extrabold flex items-center gap-1 shadow";
       merchantBadge.innerHTML = `<i class="fa-solid fa-clock"></i> PENDING`;
     }
 
-    // "নতুন পণ্য তৈরি করুন" বাটন লক রাখা
     createGigBtns.forEach(btn => {
       btn.onclick = (e) => {
         e.preventDefault();
@@ -127,12 +114,7 @@ function updateDocumentAndPermissionStatus(user) {
       };
     });
   } 
-  
-  // ==========================================
-  // ৩. যদি is_verified === FALSE এবং কোনো ডকুমেন্ট আপলোড করা না থাকে (UNVERIFIED)
-  // ==========================================
   else {
-    // ব্যানার হলুদ
     bannerContainer.className = "cyber-glass-light rounded-3xl p-6 sm:p-8 border border-amber-300/60 bg-gradient-to-r from-amber-50/50 via-white to-sky-50/50 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-lg";
     bannerIcon.className = "w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-600 text-2xl shrink-0 mx-auto";
     bannerIcon.innerHTML = `<i class="fa-solid fa-file-shield"></i>`;
@@ -143,24 +125,63 @@ function updateDocumentAndPermissionStatus(user) {
     bannerBtn.className = "w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-xs sm:text-sm shadow-lg shadow-amber-500/30 transition flex items-center justify-center gap-2.5 shrink-0";
     bannerBtn.innerHTML = `<i class="fa-solid fa-folder-open text-base"></i> ডকুমেন্টস আপলোড করুন`;
 
-    // স্ট্যাটাস ট্যাগ
     if (statusTag) statusTag.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-600"></i> আনভেরিফাইড`;
     if (statAccountStatus) statAccountStatus.innerHTML = `<i class="fa-solid fa-circle-xmark text-red-500"></i> অপূর্ণাঙ্গ`;
 
-    // প্রোফাইল পিকচার ব্যাজ -> লাল/অ্যাম্বার UNVERIFIED
     if (merchantBadge) {
       merchantBadge.className = "absolute -bottom-2 -right-2 bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-md font-extrabold flex items-center gap-1 shadow";
       merchantBadge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> UNVERIFIED`;
     }
 
-    // "নতুন পণ্য তৈরি করুন" বাটন লক রাখা
     createGigBtns.forEach(btn => {
       btn.onclick = (e) => {
         e.preventDefault();
         alert("পণ্য তৈরি করতে প্রথমে আপনার ব্যবসার প্রয়োজনীয় কাগজপত্র আপলোড করুন!");
-        window.location.href = "documents.html";
+        window.location.href = "Documents.html";
       };
     });
+  }
+}
+
+// Load User Subscription Status
+async function loadUserSubscription(userId) {
+  try {
+    const { data, error } = await supabaseClient
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    const planElem = document.getElementById('statSubPlan');
+    const statusElem = document.getElementById('statSubStatus');
+    const qrElem = document.getElementById('statQrLimit');
+
+    if (data) {
+      planElem.innerText = data.plan_name + " Plan";
+      qrElem.innerText = (data.qr_limit || 0).toLocaleString() + " QR";
+
+      if (data.payment_status === 'Pending') {
+        statusElem.innerText = "পেমেন্ট পেন্ডিং (Review)";
+        statusElem.className = "text-[10px] text-amber-600 font-mono font-bold";
+      } else if (data.payment_status === 'Active' || data.payment_status === 'Approved') {
+        statusElem.innerText = "সক্রিয় (Active)";
+        statusElem.className = "text-[10px] text-emerald-600 font-mono font-bold";
+      } else {
+        statusElem.innerText = data.payment_status;
+        statusElem.className = "text-[10px] text-slate-600 font-mono font-bold";
+      }
+    } else {
+      planElem.innerText = "কোনো প্ল্যান নেই";
+      statusElem.innerText = "সাবস্ক্রাইব করুন";
+      statusElem.className = "text-[10px] text-sky-600 font-mono font-bold";
+      qrElem.innerText = "0 QR";
+    }
+  } catch (err) {
+    console.error("Subscription Load Error:", err.message);
   }
 }
 
