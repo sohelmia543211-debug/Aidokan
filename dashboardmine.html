@@ -58,7 +58,6 @@
         
         <div class="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-5 w-full">
           <div class="relative group">
-            <!-- Dynamic Profile Image / Fallback Icon -->
             <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-br from-slate-900 to-sky-950 border-2 border-sky-400/40 flex items-center justify-center text-sky-400 text-3xl shadow-xl overflow-hidden">
               <img id="userProfileImage" src="" class="w-full h-full object-cover hidden" alt="Profile Image">
               <i id="userFallbackIcon" class="fa-solid fa-industry"></i>
@@ -115,38 +114,88 @@
       </a>
     </div>
 
-    <!-- TELEMETRY & SUBSCRIPTION STATS GRID -->
-    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
-      <div class="cyber-glass-light p-5 rounded-3xl border-l-4 border-l-sky-500 space-y-1.5 shadow-sm">
-        <p class="text-[11px] text-slate-500 uppercase font-bold tracking-wider">মোট পণ্য</p>
-        <p id="statGigCount" class="text-3xl font-black text-slate-900 font-mono">00</p>
-        <p class="text-[10px] text-sky-600 font-mono font-semibold">লাইভ প্রোডাক্ট রেজিস্ট্রি</p>
-      </div>
-
-      <!-- নতুন সাবস্ক্রিপশন কার্ড -->
-      <div class="cyber-glass-light p-5 rounded-3xl border-l-4 border-l-amber-500 space-y-1.5 shadow-sm">
-        <p class="text-[11px] text-slate-500 uppercase font-bold tracking-wider">চলতি প্ল্যান</p>
-        <p id="statSubPlan" class="text-lg font-black text-slate-900 truncate">লোড হচ্ছে...</p>
-        <p id="statSubStatus" class="text-[10px] text-amber-600 font-mono font-bold">অপেক্ষা করুন</p>
-      </div>
-
-      <div class="cyber-glass-light p-5 rounded-3xl border-l-4 border-l-cyan-500 space-y-1.5 shadow-sm">
-        <p class="text-[11px] text-slate-500 uppercase font-bold tracking-wider">কিউআর লিমিট</p>
-        <p id="statQrLimit" class="text-xl font-black text-slate-900 font-mono mt-1">0 QR</p>
-        <p class="text-[10px] text-cyan-600 font-mono">কোটা উপলব্ধ</p>
-      </div>
+    <!-- 🌟 একক সুসংগঠিত সাবস্ক্রিপশন ও QR কোড বিবরণী কার্ড (Unified Subscription & QR Status Card) 🌟 -->
+    <div class="cyber-glass-light rounded-3xl p-6 sm:p-8 border border-sky-200/80 shadow-xl bg-gradient-to-br from-white via-sky-50/30 to-slate-50 relative overflow-hidden">
       
-      <div class="cyber-glass-light p-5 rounded-3xl border-l-4 border-l-emerald-500 space-y-1.5 shadow-sm">
-        <p class="text-[11px] text-slate-500 uppercase font-bold tracking-wider">অ্যাকাউন্ট স্ট্যাটাস</p>
-        <p id="statAccountStatus" class="text-base font-bold text-emerald-600 mt-1"><i class="fa-solid fa-circle-check"></i> একটিভ</p>
-        <p class="text-[10px] text-emerald-700 font-mono">সকল ফিচার চালু</p>
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200/80 pb-5">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-sky-500 animate-pulse"></span>
+            <h3 class="text-xl font-black text-slate-900 tracking-tight">সাবস্ক্রিপশন ও QR কোড স্ট্যাটাস</h3>
+          </div>
+          <p class="text-xs text-slate-500 mt-1">আপনার চলতি প্ল্যান, মেয়াদ ও কিউআর কোড ব্যবহারের সামগ্রিক হিসাব</p>
+        </div>
+        <div id="subBadgeContainer">
+          <span id="subStatusBadge" class="px-4 py-2 rounded-2xl bg-amber-100 text-amber-800 text-xs font-black font-mono flex items-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-spinner fa-spin"></i> লোড হচ্ছে...
+          </span>
+        </div>
       </div>
 
-      <div class="cyber-glass-light p-5 rounded-3xl border-l-4 border-l-purple-500 space-y-1.5 shadow-sm">
-        <p class="text-[11px] text-slate-500 uppercase font-bold tracking-wider">নেটওয়ার্ক প্রোটোকল</p>
-        <p class="text-base font-bold text-purple-700 font-mono mt-1">AI SYNC v2.7</p>
-        <p class="text-[10px] text-purple-600 font-mono">অটোমেটেড সিস্টেম</p>
+      <!-- তথ্য গ্রিড -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-6">
+        
+        <!-- ১. প্যাকেজের নাম ও ফি -->
+        <div class="bg-white/80 p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-600 text-xl shrink-0">
+            <i class="fa-solid fa-box-open"></i>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase text-slate-400 font-bold tracking-wider">চলতি প্ল্যান</p>
+            <h4 id="subPlanName" class="text-base font-black text-slate-900">--</h4>
+            <p id="subAmount" class="text-[11px] text-sky-600 font-bold font-mono">ফি: ৳ 0</p>
+          </div>
+        </div>
+
+        <!-- ২. সময় ও মেয়াদ -->
+        <div class="bg-white/80 p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-600 text-xl shrink-0">
+            <i class="fa-solid fa-calendar-days"></i>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase text-slate-400 font-bold tracking-wider">সময়সীমা ও মেয়াদ</p>
+            <p id="subPurchaseDate" class="text-xs font-bold text-slate-800 font-mono">কেনা: --</p>
+            <p id="subExpiryDate" class="text-xs font-bold text-rose-600 font-mono">শেষ: --</p>
+          </div>
+        </div>
+
+        <!-- ৩. তৈরি করা QR কোড -->
+        <div class="bg-white/80 p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-600 text-xl shrink-0">
+            <i class="fa-solid fa-qrcode"></i>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase text-slate-400 font-bold tracking-wider">তৈরি করা QR</p>
+            <h4 id="subUsedQr" class="text-lg font-black text-slate-900 font-mono">0</h4>
+            <p class="text-[10px] text-emerald-600 font-semibold">লাইভ পণ্য</p>
+          </div>
+        </div>
+
+        <!-- ৪. অবশিষ্ট QR লিমিট ও বাকি দিন -->
+        <div class="bg-white/80 p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-600 text-xl shrink-0">
+            <i class="fa-solid fa-chart-pie"></i>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase text-slate-400 font-bold tracking-wider">অবশিষ্ট কোটা</p>
+            <h4 id="subRemainingQr" class="text-lg font-black text-purple-700 font-mono">0 / 0</h4>
+            <p id="subDaysLeft" class="text-[10px] text-slate-500 font-bold">বাকি দিন: --</p>
+          </div>
+        </div>
+
       </div>
+
+      <!-- QR কোড ব্যবহারের অগ্রগতি বার (Progress Bar) -->
+      <div class="space-y-2 bg-white/60 p-4 rounded-2xl border border-slate-200/60">
+        <div class="flex justify-between items-center text-xs font-bold">
+          <span class="text-slate-700">QR কোড ব্যবহারের হার (Usage Limit)</span>
+          <span id="qrPercentText" class="text-sky-600 font-mono">0% ব্যবহৃত</span>
+        </div>
+        <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden p-0.5">
+          <div id="qrProgressBar" class="bg-gradient-to-r from-sky-500 to-indigo-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+      </div>
+
     </div>
 
     <!-- Product Hub Preview Section -->

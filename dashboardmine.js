@@ -35,14 +35,14 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (iconElement) iconElement.classList.add('hidden');
       }
 
-      // ৩. ডাইনামিক ডকুমেন্ট স্ট্যাটাস, ব্যাজ ও বাটন পারমিশন কন্ট্রোল
+      // ৩. ডাইনামিক ডকুমেন্ট স্ট্যাটাস
       updateDocumentAndPermissionStatus(data);
 
-      // ৪. ইউজারের কেনা সাবস্ক্রিপশন ও প্যাকেজ লোড করা
-      loadUserSubscription(data.id);
+      // ৪. ইউজার প্রোডাক্ট লোড এবং মোট কতটি পণ্য তৈরি হয়েছে তার সংখ্যা বের করা
+      const gigCount = await loadUserProducts(data.id);
 
-      // ৫. ইউজার প্রোডাক্ট লোড
-      loadUserProducts(data.id);
+      // ৫. ডাটাবেজ থেকে সাবস্ক্রিপশন ও টাইম ডাটা লোড করে কার্ডে দেখানো
+      loadDetailedSubscription(data.id, gigCount);
     }
   } catch (err) {
     console.error("Dashboard Sync Error:", err.message);
@@ -58,7 +58,6 @@ function updateDocumentAndPermissionStatus(user) {
   const bannerBtn = document.getElementById('docBannerBtn');
   const createGigBtns = document.querySelectorAll('a[href="create_gig.html"]');
   const statusTag = document.getElementById('statusTag');
-  const statAccountStatus = document.getElementById('statAccountStatus');
   const merchantBadge = document.getElementById('merchantBadge');
 
   const isVerified = user.is_verified === true || user.is_verified === 'true';
@@ -76,7 +75,6 @@ function updateDocumentAndPermissionStatus(user) {
     bannerBtn.innerHTML = `<i class="fa-solid fa-user-check text-base"></i> ভেরিফাইড ডকুমেন্টস দেখুন/আপডেট করুন`;
 
     if (statusTag) statusTag.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> ভেরিফাইড মার্চেন্ট`;
-    if (statAccountStatus) statAccountStatus.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> ভেরিফাইড`;
 
     if (merchantBadge) {
       merchantBadge.className = "absolute -bottom-2 -right-2 bg-emerald-500 text-white text-[10px] px-2 py-0.5 rounded-md font-extrabold flex items-center gap-1 shadow";
@@ -100,7 +98,6 @@ function updateDocumentAndPermissionStatus(user) {
     bannerBtn.innerHTML = `<i class="fa-solid fa-spinner text-base"></i> পেন্ডিং ডকুমেন্টস দেখুন`;
 
     if (statusTag) statusTag.innerHTML = `<i class="fa-solid fa-clock text-sky-600"></i> ভেরিফিকেশন পেন্ডিং`;
-    if (statAccountStatus) statAccountStatus.innerHTML = `<i class="fa-solid fa-clock text-amber-500"></i> পেন্ডিং`;
 
     if (merchantBadge) {
       merchantBadge.className = "absolute -bottom-2 -right-2 bg-amber-500 text-white text-[10px] px-2 py-0.5 rounded-md font-extrabold flex items-center gap-1 shadow";
@@ -126,7 +123,6 @@ function updateDocumentAndPermissionStatus(user) {
     bannerBtn.innerHTML = `<i class="fa-solid fa-folder-open text-base"></i> ডকুমেন্টস আপলোড করুন`;
 
     if (statusTag) statusTag.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-600"></i> আনভেরিফাইড`;
-    if (statAccountStatus) statAccountStatus.innerHTML = `<i class="fa-solid fa-circle-xmark text-red-500"></i> অপূর্ণাঙ্গ`;
 
     if (merchantBadge) {
       merchantBadge.className = "absolute -bottom-2 -right-2 bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-md font-extrabold flex items-center gap-1 shadow";
@@ -143,8 +139,8 @@ function updateDocumentAndPermissionStatus(user) {
   }
 }
 
-// Load User Subscription Status
-async function loadUserSubscription(userId) {
+// 🌟 ডাটাবেজ টাইম ও সাবস্ক্রিপশন ডাটা লোড করে কার্ডে দেখানোর ফাংশন 🌟
+async function loadDetailedSubscription(userId, totalGigsUsed) {
   try {
     const { data, error } = await supabaseClient
       .from('subscriptions')
@@ -156,32 +152,92 @@ async function loadUserSubscription(userId) {
 
     if (error) throw error;
 
-    const planElem = document.getElementById('statSubPlan');
-    const statusElem = document.getElementById('statSubStatus');
-    const qrElem = document.getElementById('statQrLimit');
+    const subStatusBadge = document.getElementById('subStatusBadge');
+    const subPlanName = document.getElementById('subPlanName');
+    const subAmount = document.getElementById('subAmount');
+    const subPurchaseDate = document.getElementById('subPurchaseDate');
+    const subExpiryDate = document.getElementById('subExpiryDate');
+    const subUsedQr = document.getElementById('subUsedQr');
+    const subRemainingQr = document.getElementById('subRemainingQr');
+    const subDaysLeft = document.getElementById('subDaysLeft');
+    const qrPercentText = document.getElementById('qrPercentText');
+    const qrProgressBar = document.getElementById('qrProgressBar');
 
     if (data) {
-      planElem.innerText = data.plan_name + " Plan";
-      qrElem.innerText = (data.qr_limit || 0).toLocaleString() + " QR";
+      subPlanName.innerText = data.plan_name + " Plan";
+      subAmount.innerText = `ফি: ৳ ${data.amount ? data.amount.toLocaleString() : '0'}`;
 
-      if (data.payment_status === 'Pending') {
-        statusElem.innerText = "পেমেন্ট পেন্ডিং (Review)";
-        statusElem.className = "text-[10px] text-amber-600 font-mono font-bold";
-      } else if (data.payment_status === 'Active' || data.payment_status === 'Approved') {
-        statusElem.innerText = "সক্রিয় (Active)";
-        statusElem.className = "text-[10px] text-emerald-600 font-mono font-bold";
+      // ডাটাবেজের created_at ও expiry_date থেকে সঠিক টাইম ফরম্যাট তৈরি
+      const created = new Date(data.created_at);
+      const expiry = new Date(data.expiry_date);
+      const today = new Date();
+
+      const options = { day: 'numeric', month: 'short', year: 'numeric' };
+      subPurchaseDate.innerText = `কেনা: ${created.toLocaleDateString('bn-BD', options)}`;
+      subExpiryDate.innerText = `শেষ: ${expiry.toLocaleDateString('bn-BD', options)}`;
+
+      // বাকি দিন হিসাব করা
+      const diffTime = expiry - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays > 0) {
+        subDaysLeft.innerText = `বাকি দিন: ${diffDays} দিন`;
+        subDaysLeft.className = "text-[10px] text-emerald-600 font-bold";
       } else {
-        statusElem.innerText = data.payment_status;
-        statusElem.className = "text-[10px] text-slate-600 font-mono font-bold";
+        subDaysLeft.innerText = "মেয়াদ শেষ!";
+        subDaysLeft.className = "text-[10px] text-red-600 font-bold animate-pulse";
       }
+
+      // পেমেন্ট স্ট্যাটাস (Approved / Active / Pending)
+      const status = data.payment_status;
+      if (status === 'Active' || status === 'Approved') {
+        subStatusBadge.className = "px-4 py-2 rounded-2xl bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-black font-mono flex items-center gap-1.5 shadow-sm";
+        subStatusBadge.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> সক্রিয় (ACTIVE)`;
+      } else if (status === 'Pending') {
+        subStatusBadge.className = "px-4 py-2 rounded-2xl bg-amber-100 border border-amber-300 text-amber-800 text-xs font-black font-mono flex items-center gap-1.5 shadow-sm";
+        subStatusBadge.innerHTML = `<i class="fa-solid fa-clock text-amber-600"></i> পেন্ডিং (PENDING)`;
+      } else {
+        subStatusBadge.className = "px-4 py-2 rounded-2xl bg-red-100 border border-red-300 text-red-800 text-xs font-black font-mono flex items-center gap-1.5 shadow-sm";
+        subStatusBadge.innerHTML = `<i class="fa-solid fa-circle-xmark text-red-600"></i> ${status}`;
+      }
+
+      // QR কোড হিসাব (মোট লিমিট বনাম ব্যবহৃত পণ্য)
+      const totalQrLimit = data.qr_limit || 0;
+      const usedQr = totalGigsUsed || 0;
+      const remainingQr = Math.max(0, totalQrLimit - usedQr);
+
+      subUsedQr.innerText = usedQr.toLocaleString();
+      subRemainingQr.innerText = `${remainingQr.toLocaleString()} / ${totalQrLimit.toLocaleString()}`;
+
+      // প্রোগ্রেস বার পার্সেন্টেজ হিসাব
+      const percentage = totalQrLimit > 0 ? Math.min(100, Math.round((usedQr / totalQrLimit) * 100)) : 0;
+      qrPercentText.innerText = `${percentage}% ব্যবহৃত`;
+      qrProgressBar.style.width = `${percentage}%`;
+
+      if (percentage >= 90) {
+        qrProgressBar.className = "bg-gradient-to-r from-amber-500 to-red-600 h-full rounded-full transition-all duration-500";
+      } else {
+        qrProgressBar.className = "bg-gradient-to-r from-sky-500 to-indigo-600 h-full rounded-full transition-all duration-500";
+      }
+
     } else {
-      planElem.innerText = "কোনো প্ল্যান নেই";
-      statusElem.innerText = "সাবস্ক্রাইব করুন";
-      statusElem.className = "text-[10px] text-sky-600 font-mono font-bold";
-      qrElem.innerText = "0 QR";
+      subPlanName.innerText = "কোনো প্ল্যান নেই";
+      subAmount.innerText = "ফি: ৳ 0";
+      subPurchaseDate.innerText = "কেনা: --";
+      subExpiryDate.innerText = "শেষ: --";
+      subDaysLeft.innerText = "বাকি দিন: 0";
+
+      subStatusBadge.className = "px-4 py-2 rounded-2xl bg-slate-100 border border-slate-300 text-slate-700 text-xs font-black font-mono flex items-center gap-1.5 shadow-sm";
+      subStatusBadge.innerHTML = `<i class="fa-solid fa-circle-exclamation text-slate-500"></i> সাবস্ক্রাইব করুন`;
+
+      subUsedQr.innerText = "0";
+      subRemainingQr.innerText = "0 / 0";
+      qrPercentText.innerText = "0% ব্যবহৃত";
+      qrProgressBar.style.width = "0%";
     }
+
   } catch (err) {
-    console.error("Subscription Load Error:", err.message);
+    console.error("Detailed Subscription Load Error:", err.message);
   }
 }
 
@@ -202,12 +258,9 @@ async function loadUserProducts(userId) {
           <i class="fa-solid fa-box-archive text-3xl mb-2 text-slate-400 block"></i> কোনো পণ্য পাওয়া যায়নি। <br>নতুন পণ্য যোগ করতে ওপরের বা পাশের বাটন ব্যবহার করুন।
         </div>
       `;
-      document.getElementById('statGigCount').innerText = "00";
-      return;
+      return 0;
     }
 
-    document.getElementById('statGigCount').innerText = data.length < 10 ? '0' + data.length : data.length;
-    
     let html = '';
     data.forEach(item => {
       html += `
@@ -228,10 +281,12 @@ async function loadUserProducts(userId) {
       `;
     });
     grid.innerHTML = html;
+    return data.length;
 
   } catch (err) {
     console.error("Products Error:", err.message);
     grid.innerHTML = `<div class="col-span-full text-center py-8 text-red-500 text-xs font-mono">প্রোডাক্ট ডেটা রিড করতে সমস্যা হয়েছে।</div>`;
+    return 0;
   }
 }
 
