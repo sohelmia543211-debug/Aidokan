@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>নতুন পণ্য যুক্ত করুন - আসল নকল</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabaseconfig.js"></script>
+</head>
+<body class="bg-slate-900 color-white min-h-screen text-slate-100 p-3 sm:p-6">
+
+    <div class="max-w-3xl mx-auto bg-slate-800/90 border border-slate-700 p-5 sm:p-8 rounded-3xl shadow-2xl backdrop-blur-md">
+        
+        <div class="border-b border-slate-700 pb-4 mb-6 flex justify-between items-center">
+            <div>
+                <h2 class="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-box-tissue text-sky-400"></i> নতুন পণ্য রেজিস্ট্রেশন
+                </h2>
+                <p class="text-xs text-slate-400 mt-1">আইনি সুরক্ষা নিশ্চিত করতে সকল আবশ্যকীয় তথ্য দিন</p>
+            </div>
+            <a href="dashboardmine.html" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-xs font-bold text-slate-200">
+                <i class="fa-solid fa-arrow-left mr-1"></i> ব্যাক
+            </a>
+        </div>
+
+        <form id="uploadProductForm" onsubmit="handleProductUpload(event)" class="space-y-5">
+            
+            <!-- Mandatory: Title & Price -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">পণ্যের নাম (Title) <span class="text-rose-500">*</span></label>
+                    <input type="text" id="p_title" required placeholder="যেমন: অর্গানিক ঘি ৫০০ গ্রাম" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-sky-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">পণ্যের মূল্য / দাম (Price ৳) <span class="text-rose-500">*</span></label>
+                    <input type="number" id="p_price" required min="1" placeholder="যেমন: ৭৫০" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-sky-500">
+                </div>
+            </div>
+
+            <!-- Mandatory: Batch & Quantity -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">ব্যাচ নম্বর (Batch No) <span class="text-rose-500">*</span></label>
+                    <input type="text" id="p_batch" required placeholder="যেমন: BATCH-2026-001" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-sky-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">প্যাকেট / ইউনিট সংখ্যা (Total Unit Code) <span class="text-rose-500">*</span></label>
+                    <input type="number" id="p_qty" required min="1" max="1000" placeholder="যেমন: 50 (ইউনিক QR কোড জেনারেট হবে)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-sky-500">
+                </div>
+            </div>
+
+            <!-- Optional / Legal Compliance Fields -->
+            <div class="p-4 bg-slate-900/60 rounded-2xl border border-slate-700/60 space-y-4">
+                <p class="text-xs font-bold text-sky-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-gavel"></i> লিগ্যাল ও ম্যানুফ্যাকচারিং ডাটা (খাদ্য/ওষুধের জন্য আবশ্যক)
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">উৎপাদন তারিখ (Mfg Date)</label>
+                        <input type="date" id="p_mfg" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">মেয়াদ উত্তীর্ণ (Exp Date)</label>
+                        <input type="date" id="p_exp" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">লাইসেন্স/অনুমোদন নম্বর</label>
+                        <input type="text" id="p_license" placeholder="BSTI/Drug License" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Optional: Description -->
+            <div>
+                <label class="block text-xs font-bold text-slate-300 mb-1.5">পণ্যের বিবরণ (Description) [ঐচ্ছিক]</label>
+                <textarea id="p_desc" rows="3" placeholder="পণ্যের গুণাগুণ ও উপাদান লিখুন..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-sky-500"></textarea>
+            </div>
+
+            <!-- Declaration Disclaimer Checkbox -->
+            <div class="flex items-start gap-2.5 pt-2">
+                <input type="checkbox" id="legal_agree" required class="mt-0.5 rounded text-sky-600 focus:ring-sky-500 bg-slate-900 border-slate-700">
+                <label for="legal_agree" class="text-[11px] text-slate-400 leading-tight">
+                    আমি নিশ্চিত করছি যে এই পণ্যটি বাংলাদেশ সরকার অনুমোদিত এবং এর তথ্যের সমস্ত দায়ভার আমার প্রতিষ্ঠানের।
+                </label>
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full py-3.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl font-bold text-xs sm:text-sm shadow-lg shadow-sky-600/30 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-qrcode text-base"></i> পণ্য যোগ করুন ও ইউনিক QR জেনারেট করুন
+            </button>
+        </form>
+    </div>
+
+    <script>
+        async function handleProductUpload(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = 'ডাটা সেভ ও QR জেনারেট হচ্ছে...';
+
+            const userPhone = localStorage.getItem('userPhone');
+            const userData = JSON.parse(localStorage.getItem('asolNokolUser') || '{}');
+            const phone = userPhone || userData.phone_number;
+
+            try {
+                // Fetch Merchant User ID
+                const { data: user, error: uErr } = await supabaseClient.from('users').select('id, main_category, sub_category').eq('phone_number', phone).single();
+                if (uErr || !user) throw new Error("Merchant account not found!");
+
+                const title = document.getElementById('p_title').value.trim();
+                const price = parseFloat(document.getElementById('p_price').value);
+                const batch = document.getElementById('p_batch').value.trim();
+                const qty = parseInt(document.getElementById('p_qty').value);
+                const mfg = document.getElementById('p_mfg').value || null;
+                const exp = document.getElementById('p_exp').value || null;
+                const license = document.getElementById('p_license').value.trim() || null;
+                const desc = document.getElementById('p_desc').value.trim();
+
+                // 1. Insert into Products Table
+                const { data: product, error: pErr } = await supabaseClient.from('products').insert([{
+                    merchant_id: user.id,
+                    title: title,
+                    price: price,
+                    batch_no: batch,
+                    total_quantity: qty,
+                    mfg_date: mfg,
+                    exp_date: exp,
+                    license_no: license,
+                    description: desc,
+                    main_category: user.main_category || 'General',
+                    sub_category: user.sub_category || 'General',
+                    status: 'Approved' // Can be 'Pending' for Admin review
+                }]).select().single();
+
+                if (pErr) throw pErr;
+
+                // 2. Generate Unique Unit QR Codes
+                const itemCodes = [];
+                for(let i=0; i < qty; i++) {
+                    const randomCode = 'AN-' + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Date.now().toString().slice(-4) + '-' + (i+1);
+                    itemCodes.push({
+                        product_id: product.id,
+                        merchant_id: user.id,
+                        unique_code: randomCode
+                    });
+                }
+
+                const { error: codeErr } = await supabaseClient.from('product_item_codes').insert(itemCodes);
+                if (codeErr) throw codeErr;
+
+                alert(`সফলভাবে ${qty} টি ইউনিক QR কোডসহ পণ্য যুক্ত করা হয়েছে!`);
+                window.location.href = 'dashboardmine.html';
+
+            } catch (err) {
+                alert('ভুল হয়েছে: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'পণ্য যোগ করুন ও ইউনিক QR জেনারেট করুন';
+            }
+        }
+    </script>
+</body>
+</html>
