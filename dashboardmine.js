@@ -38,7 +38,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       // ৩. ডাইনামিক ডকুমেন্ট স্ট্যাটাস
       updateDocumentAndPermissionStatus(data);
 
-      // ৪. ইউজার প্রোডাক্ট লোড এবং মোট কতটি পণ্য তৈরি হয়েছে তার সংখ্যা বের করা
+      // ৪. ইউজার প্রোডাক্ট লোড এবং মোট কতটি পণ্য তৈরি হয়েছে তার সংখ্যা বের করা
       const gigCount = await loadUserProducts(data.id);
 
       // ৫. ডাটাবেজ থেকে সাবস্ক্রিপশন ও টাইম ডাটা লোড করে কার্ডে দেখানো
@@ -48,6 +48,22 @@ window.addEventListener('DOMContentLoaded', async () => {
     console.error("Dashboard Sync Error:", err.message);
   }
 });
+
+// 🌟 সাইডবার ড্রয়ার টগল (খোলা ও বন্ধ করা) ফাংশন 🌟
+function toggleSideMenu() {
+  const drawer = document.getElementById('sideDrawer');
+  const overlay = document.getElementById('sideMenuOverlay');
+
+  if (drawer.classList.contains('-translate-x-full')) {
+    // মেনু স্লাইড ইন করানো
+    drawer.classList.remove('-translate-x-full');
+    overlay.classList.remove('hidden');
+  } else {
+    // মেনু স্লাইড আউট করানো
+    drawer.classList.add('-translate-x-full');
+    overlay.classList.add('hidden');
+  }
+}
 
 // Document Banner, Badge & Action Permission Logic
 function updateDocumentAndPermissionStatus(user) {
@@ -167,7 +183,6 @@ async function loadDetailedSubscription(userId, totalGigsUsed) {
       subPlanName.innerText = data.plan_name + " Plan";
       subAmount.innerText = `ফি: ৳ ${data.amount ? data.amount.toLocaleString() : '0'}`;
 
-      // ডাটাবেজের created_at ও expiry_date থেকে সঠিক টাইম ফরম্যাট তৈরি
       const created = new Date(data.created_at);
       const expiry = new Date(data.expiry_date);
       const today = new Date();
@@ -176,7 +191,6 @@ async function loadDetailedSubscription(userId, totalGigsUsed) {
       subPurchaseDate.innerText = `কেনা: ${created.toLocaleDateString('bn-BD', options)}`;
       subExpiryDate.innerText = `শেষ: ${expiry.toLocaleDateString('bn-BD', options)}`;
 
-      // বাকি দিন হিসাব করা
       const diffTime = expiry - today;
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       
@@ -184,15 +198,14 @@ async function loadDetailedSubscription(userId, totalGigsUsed) {
         subDaysLeft.innerText = `বাকি দিন: ${diffDays} দিন`;
         subDaysLeft.className = "text-[10px] text-emerald-600 font-bold";
       } else {
-        subDaysLeft.innerText = "মেয়াদ শেষ!";
+        subDaysLeft.innerText = "মেয়াদ শেষ!";
         subDaysLeft.className = "text-[10px] text-red-600 font-bold animate-pulse";
       }
 
-      // পেমেন্ট স্ট্যাটাস (Approved / Active / Pending)
       const status = data.payment_status;
       if (status === 'Active' || status === 'Approved') {
         subStatusBadge.className = "px-4 py-2 rounded-2xl bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-black font-mono flex items-center gap-1.5 shadow-sm";
-        subStatusBadge.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> সক্রিয় (ACTIVE)`;
+        subStatusBadge.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> সক্রিয় (ACTIVE)`;
       } else if (status === 'Pending') {
         subStatusBadge.className = "px-4 py-2 rounded-2xl bg-amber-100 border border-amber-300 text-amber-800 text-xs font-black font-mono flex items-center gap-1.5 shadow-sm";
         subStatusBadge.innerHTML = `<i class="fa-solid fa-clock text-amber-600"></i> পেন্ডিং (PENDING)`;
@@ -201,7 +214,6 @@ async function loadDetailedSubscription(userId, totalGigsUsed) {
         subStatusBadge.innerHTML = `<i class="fa-solid fa-circle-xmark text-red-600"></i> ${status}`;
       }
 
-      // QR কোড হিসাব (মোট লিমিট বনাম ব্যবহৃত পণ্য)
       const totalQrLimit = data.qr_limit || 0;
       const usedQr = totalGigsUsed || 0;
       const remainingQr = Math.max(0, totalQrLimit - usedQr);
@@ -209,7 +221,6 @@ async function loadDetailedSubscription(userId, totalGigsUsed) {
       subUsedQr.innerText = usedQr.toLocaleString();
       subRemainingQr.innerText = `${remainingQr.toLocaleString()} / ${totalQrLimit.toLocaleString()}`;
 
-      // প্রোগ্রেস বার পার্সেন্টেজ হিসাব
       const percentage = totalQrLimit > 0 ? Math.min(100, Math.round((usedQr / totalQrLimit) * 100)) : 0;
       qrPercentText.innerText = `${percentage}% ব্যবহৃত`;
       qrProgressBar.style.width = `${percentage}%`;

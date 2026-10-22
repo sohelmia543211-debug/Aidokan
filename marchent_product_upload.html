@@ -18,7 +18,7 @@
                 <h2 class="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
                     <i class="fa-solid fa-box-tissue text-sky-400"></i> নতুন পণ্য রেজিস্ট্রেশন
                 </h2>
-                <p class="text-xs text-slate-400 mt-1">আইনি সুরক্ষা নিশ্চিত করতে সকল আবশ্যকীয় তথ্য দিন</p>
+                <p class="text-xs text-slate-400 mt-1">আইনি সুরক্ষা নিশ্চিত করতে সকল আবশ্যকীয় তথ্য দিন</p>
             </div>
             <a href="dashboardmine.html" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-xs font-bold text-slate-200">
                 <i class="fa-solid fa-arrow-left mr-1"></i> ব্যাক
@@ -51,6 +51,19 @@
                 </div>
             </div>
 
+            <!-- Product Image Upload Section -->
+            <div class="p-4 bg-slate-900/80 rounded-2xl border border-slate-700 space-y-3">
+                <label class="block text-xs font-bold text-slate-300">পণ্যের ছবি আপলোড করুন (Product Image)</label>
+                <div class="flex items-center gap-4">
+                    <input type="file" id="p_image" accept="image/*" onchange="previewProductImage(event)" class="block w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sky-600 file:text-white hover:file:bg-sky-500 cursor-pointer">
+                    
+                    <!-- Preview Image Box -->
+                    <div id="imagePreviewContainer" class="hidden shrink-0">
+                        <img id="imagePreview" src="" alt="Preview" class="w-14 h-14 object-cover rounded-xl border border-sky-500 shadow">
+                    </div>
+                </div>
+            </div>
+
             <!-- Optional / Legal Compliance Fields -->
             <div class="p-4 bg-slate-900/60 rounded-2xl border border-slate-700/60 space-y-4">
                 <p class="text-xs font-bold text-sky-400 flex items-center gap-1.5">
@@ -62,7 +75,7 @@
                         <input type="date" id="p_mfg" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">মেয়াদ উত্তীর্ণ (Exp Date)</label>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">মেয়াদ উত্তীর্ণ (Exp Date)</label>
                         <input type="date" id="p_exp" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500">
                     </div>
                     <div>
@@ -82,7 +95,7 @@
             <div class="flex items-start gap-2.5 pt-2">
                 <input type="checkbox" id="legal_agree" required class="mt-0.5 rounded text-sky-600 focus:ring-sky-500 bg-slate-900 border-slate-700">
                 <label for="legal_agree" class="text-[11px] text-slate-400 leading-tight">
-                    আমি নিশ্চিত করছি যে এই পণ্যটি বাংলাদেশ সরকার অনুমোদিত এবং এর তথ্যের সমস্ত দায়ভার আমার প্রতিষ্ঠানের।
+                    আমি নিশ্চিত করছি যে এই পণ্যটি বাংলাদেশ সরকার অনুমোদিত এবং এর তথ্যের সমস্ত দায়ভার আমার প্রতিষ্ঠানের।
                 </label>
             </div>
 
@@ -93,11 +106,24 @@
     </div>
 
     <script>
+        // Preview Selected Image
+        function previewProductImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('imagePreview').src = e.target.result;
+                    document.getElementById('imagePreviewContainer').classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
         async function handleProductUpload(e) {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
-            btn.innerText = 'ডাটা সেভ ও QR জেনারেট হচ্ছে...';
+            btn.innerText = 'ছবি আপলোড ও প্রোডাক্ট সেভ হচ্ছে...';
 
             const userPhone = localStorage.getItem('userPhone');
             const userData = JSON.parse(localStorage.getItem('asolNokolUser') || '{}');
@@ -117,6 +143,34 @@
                 const license = document.getElementById('p_license').value.trim() || null;
                 const desc = document.getElementById('p_desc').value.trim();
 
+                // Image Upload to Supabase Storage Bucket ('product_image')
+                const imageFile = document.getElementById('p_image').files[0];
+                let imageUrls = [];
+
+                if (imageFile) {
+                    const fileExt = imageFile.name.split('.').pop();
+                    const fileName = `${user.id}_${Date.now()}.${fileExt}`;
+                    const filePath = `${fileName}`;
+
+                    // Upload file to product_image bucket
+                    const { error: uploadErr } = await supabaseClient
+                        .storage
+                        .from('product_image')
+                        .upload(filePath, imageFile);
+
+                    if (uploadErr) throw new Error("Image Upload Failed: " + uploadErr.message);
+
+                    // Get Public URL
+                    const { data: publicUrlData } = supabaseClient
+                        .storage
+                        .from('product_image')
+                        .getPublicUrl(filePath);
+
+                    if (publicUrlData && publicUrlData.publicUrl) {
+                        imageUrls.push(publicUrlData.publicUrl);
+                    }
+                }
+
                 // 1. Insert into Products Table
                 const { data: product, error: pErr } = await supabaseClient.from('products').insert([{
                     merchant_id: user.id,
@@ -128,9 +182,10 @@
                     exp_date: exp,
                     license_no: license,
                     description: desc,
+                    product_images: imageUrls, // Saving Image URL Array
                     main_category: user.main_category || 'General',
                     sub_category: user.sub_category || 'General',
-                    status: 'Approved' // Can be 'Pending' for Admin review
+                    status: 'Approved'
                 }]).select().single();
 
                 if (pErr) throw pErr;
@@ -149,11 +204,11 @@
                 const { error: codeErr } = await supabaseClient.from('product_item_codes').insert(itemCodes);
                 if (codeErr) throw codeErr;
 
-                alert(`সফলভাবে ${qty} টি ইউনিক QR কোডসহ পণ্য যুক্ত করা হয়েছে!`);
-                window.location.href = 'dashboardmine.html';
+                alert(`ছবি ও ${qty} টি ইউনিক QR কোডসহ পণ্য সফলভাবে যুক্ত করা হয়েছে!`);
+                window.location.href = 'viewmyproduct.html';
 
             } catch (err) {
-                alert('ভুল হয়েছে: ' + err.message);
+                alert('ভুল হয়েছে: ' + err.message);
             } finally {
                 btn.disabled = false;
                 btn.innerText = 'পণ্য যোগ করুন ও ইউনিক QR জেনারেট করুন';
