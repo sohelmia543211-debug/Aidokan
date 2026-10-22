@@ -123,7 +123,7 @@
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
-            btn.innerText = 'ছবি আপলোড ও প্রোডাক্ট সেভ হচ্ছে...';
+            btn.innerText = 'সাবস্ক্রিপশন কোটা যাচাই ও প্রোডাক্ট সেভ হচ্ছে...';
 
             const userPhone = localStorage.getItem('userPhone');
             const userData = JSON.parse(localStorage.getItem('asolNokolUser') || '{}');
@@ -134,10 +134,48 @@
                 const { data: user, error: uErr } = await supabaseClient.from('users').select('id, main_category, sub_category').eq('phone_number', phone).single();
                 if (uErr || !user) throw new Error("Merchant account not found!");
 
+                const qty = parseInt(document.getElementById('p_qty').value);
+
+                // 🌟 ১. সাবস্ক্রিপশন কোটা চেক (Subscription Limit Validation) 🌟
+                const { data: sub, error: sErr } = await supabaseClient
+                    .from('subscriptions')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+
+                if (sErr || !sub) {
+                    throw new Error("আপনার কোনো অ্যাক্টিভ সাবস্ক্রিপশন পাওয়া যায়নি! পণ্য যোগ করতে প্রথমে সাবস্ক্রিপশন নিন।");
+                }
+
+                // পেমেন্ট স্ট্যাটাস এবং মেয়াদ চেক
+                const now = new Date();
+                const expiry = new Date(sub.expiry_date);
+                if (sub.payment_status !== 'Approved' || expiry < now) {
+                    throw new Error("আপনার সাবস্ক্রিপশনের মেয়াদ শেষ বা পেন্ডিং রয়েছে! দয়া করে পেমেন্ট সম্পন্ন করুন।");
+                }
+
+                // মোট কতটি QR ইতিপূর্বে জেনারেট হয়েছে তা বের করা
+                const { count: totalUsed, error: cErr } = await supabaseClient
+                    .from('product_item_codes')
+                    .select('id', { count: 'exact', head: true })
+                    .eq('merchant_id', user.id);
+
+                if (cErr) throw cErr;
+
+                const limit = sub.qr_limit || 0;
+                const currentUsed = totalUsed || 0;
+                const remaining = Math.max(0, limit - currentUsed);
+
+                // যদি অবশিষ্ট কোটার চেয়ে বেশি ইউনিট দিতে চায়
+                if (currentUsed + qty > limit) {
+                    throw new Error(`আপনার কোটা শেষ! আপনি মোট কিনেছেন ${limit} টি, ইতিমধ্যে ব্যবহার করেছেন ${currentUsed} টি। আপনার অবশিষ্ট কোটা রয়েছে মাত্র ${remaining} টি। আপনি একসাথে ${qty} টি পণ্য যোগ করতে পারবেন না।`);
+                }
+
                 const title = document.getElementById('p_title').value.trim();
                 const price = parseFloat(document.getElementById('p_price').value);
                 const batch = document.getElementById('p_batch').value.trim();
-                const qty = parseInt(document.getElementById('p_qty').value);
                 const mfg = document.getElementById('p_mfg').value || null;
                 const exp = document.getElementById('p_exp').value || null;
                 const license = document.getElementById('p_license').value.trim() || null;
@@ -152,7 +190,6 @@
                     const fileName = `${user.id}_${Date.now()}.${fileExt}`;
                     const filePath = `${fileName}`;
 
-                    // Upload file to product_image bucket
                     const { error: uploadErr } = await supabaseClient
                         .storage
                         .from('product_image')
@@ -160,7 +197,6 @@
 
                     if (uploadErr) throw new Error("Image Upload Failed: " + uploadErr.message);
 
-                    // Get Public URL
                     const { data: publicUrlData } = supabaseClient
                         .storage
                         .from('product_image')
@@ -171,7 +207,7 @@
                     }
                 }
 
-                // 1. Insert into Products Table
+                // 2. Insert into Products Table with status 'Approved'
                 const { data: product, error: pErr } = await supabaseClient.from('products').insert([{
                     merchant_id: user.id,
                     title: title,
@@ -182,7 +218,7 @@
                     exp_date: exp,
                     license_no: license,
                     description: desc,
-                    product_images: imageUrls, // Saving Image URL Array
+                    product_images: imageUrls,
                     main_category: user.main_category || 'General',
                     sub_category: user.sub_category || 'General',
                     status: 'Approved'
@@ -190,25 +226,31 @@
 
                 if (pErr) throw pErr;
 
-                // 2. Generate Unique Unit QR Codes
+                // 3. Generate Non-Predictable Cryptographic Secure Unit QR Codes
                 const itemCodes = [];
+                const timeStamp = Date.now().toString(36).toUpperCase();
+
                 for(let i=0; i < qty; i++) {
-                    const randomCode = 'AN-' + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Date.now().toString().slice(-4) + '-' + (i+1);
+                    const randHash1 = crypto.getRandomValues(new Uint32Array(1))[0].toString(36).toUpperCase();
+                    const randHash2 = crypto.getRandomValues(new Uint32Array(1))[0].toString(36).toUpperCase();
+                    const randomCode = `AN-${randHash1}-${timeStamp}-${randHash2}`;
+
                     itemCodes.push({
                         product_id: product.id,
                         merchant_id: user.id,
-                        unique_code: randomCode
+                        unique_code: randomCode,
+                        is_scanned: false
                     });
                 }
 
                 const { error: codeErr } = await supabaseClient.from('product_item_codes').insert(itemCodes);
                 if (codeErr) throw codeErr;
 
-                alert(`ছবি ও ${qty} টি ইউনিক QR কোডসহ পণ্য সফলভাবে যুক্ত করা হয়েছে!`);
+                alert(`ছবি ও ${qty} টি ইউনিক সিকিউরড QR কোডসহ পণ্য সফলভাবে যুক্ত করা হয়েছে!`);
                 window.location.href = 'viewmyproduct.html';
 
             } catch (err) {
-                alert('ভুল হয়েছে: ' + err.message);
+                alert('ত্রুটি: ' + err.message);
             } finally {
                 btn.disabled = false;
                 btn.innerText = 'পণ্য যোগ করুন ও ইউনিক QR জেনারেট করুন';
