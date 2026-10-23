@@ -94,25 +94,44 @@ function getLocationAndProcess(product, itemCode, merchantName, merchantPhone) {
     }
 }
 
-// IP Address দিয়ে ব্যাকগ্রাউন্ডে লোকেশন বের করার ফিক্সড ফাংশন (ip-api.com)
+// IP Address দিয়ে ব্যাকগ্রাউন্ডে নিখুঁত লোকেশন ও ল্যাটিটিউড-লংটিউড বের করার ফিক্সড ফাংশন
 async function fetchLocationByIPAndProcess(product, itemCode, merchantName, merchantPhone) {
     try {
-        const response = await fetch('https://ip-api.com/json/?fields=status,message,country,regionName,city,lat,lon');
-        const data = await response.json();
+        // প্রথম ট্রাই: ipapi.co
+        const res = await fetch('https://ipapi.co/json/');
+        const data = await res.json();
         
-        if (data && data.status === 'success') {
-            const lat = data.lat;
-            const lon = data.lon;
-            const locationName = `${data.city || ''}, ${data.regionName || ''}, ${data.country || ''} (IP Based)`.trim();
+        if (data && data.latitude && data.longitude) {
+            const lat = parseFloat(data.latitude);
+            const lon = parseFloat(data.longitude);
+            const locationName = `${data.city || ''}, ${data.region || ''}, ${data.country_name || ''} (IP Based)`.trim();
             
             await processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, lat, lon, locationName);
-        } else {
-            await processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, null, null, "Bangladesh (Default)");
+            return;
         }
     } catch (err) {
-        console.warn("IP Geolocation failed:", err);
-        await processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, null, null, "Offline Location");
+        console.warn("Primary IP Geolocation failed, trying backup...", err);
     }
+
+    try {
+        // দ্বিতীয় ট্রাই (ব্যাকআপ): geoplugin.net (যাতে কোনোভাবেই ল্যাটিটিউড-লংটিউড NULL না হয়)
+        const res2 = await fetch('https://www.geoplugin.net/json.gp');
+        const data2 = await res2.json();
+
+        if (data2 && data2.geoplugin_latitude && data2.geoplugin_longitude) {
+            const lat = parseFloat(data2.geoplugin_latitude);
+            const lon = parseFloat(data2.geoplugin_longitude);
+            const locationName = `${data2.geoplugin_city || ''}, ${data2.geoplugin_region || ''}, ${data2.geoplugin_countryName || ''} (GeoPlugin)`.trim();
+
+            await processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, lat, lon, locationName);
+            return;
+        }
+    } catch (err2) {
+        console.warn("Backup IP API also failed:", err2);
+    }
+
+    // কোনোভাবেই না পেলে ডিফল্ট ঢাকা বা বাংলাদেশ লোকেশন দিয়ে সেভ করবে
+    await processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, 23.8103, 90.4125, "Bangladesh (Default IP)");
 }
 
 // স্পিড চেক, লোকেশন আপডেট ও স্ক্যান হিস্ট্রি লগ করার ফাংশন
