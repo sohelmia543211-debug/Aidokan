@@ -73,7 +73,7 @@ function getLocationAndProcess(product, itemCode, merchantName, merchantPhone) {
                 await processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, currentLat, currentLng, "GPS Location");
             },
             async (error) => {
-                // জিপিএস পারমিশন ব্লক বা ফেইল করলে অটো আইপি (IP) দিয়ে লোকেশন আনবে
+                // জিপিএস পারমিশন ব্লক বা ফেইল করলে অটো আইপি (IP) দিয়ে লোকেশন আনবে
                 if (!gpsHandled) {
                     gpsHandled = true;
                     await fetchLocationByIPAndProcess(product, itemCode, merchantName, merchantPhone);
@@ -82,7 +82,7 @@ function getLocationAndProcess(product, itemCode, merchantName, merchantPhone) {
             { timeout: 5000, enableHighAccuracy: true }
         );
 
-        // ৫ সেকেন্ডের মধ্যে জিপিএস না সাড়া দিলে আইপিতে সুইচ করবে
+        // ৫ সেকেন্ডের মধ্যে জিপিএস না সাড়া দিলে আইপিতে সুইচ করবে
         setTimeout(async () => {
             if (!gpsHandled) {
                 gpsHandled = true;
@@ -94,21 +94,24 @@ function getLocationAndProcess(product, itemCode, merchantName, merchantPhone) {
     }
 }
 
-// IP Address দিয়ে ব্যাকগ্রাউন্ডে লোকেশন বের করার ফাংশন
+// IP Address দিয়ে ব্যাকগ্রাউন্ডে লোকেশন বের করার ফিক্সড ফাংশন (ip-api.com)
 async function fetchLocationByIPAndProcess(product, itemCode, merchantName, merchantPhone) {
     try {
-        const response = await fetch('https://ipapi.co/json/');
+        const response = await fetch('https://ip-api.com/json/?fields=status,message,country,regionName,city,lat,lon');
         const data = await response.json();
         
-        if (data && data.latitude && data.longitude) {
-            const locationName = `${data.city || ''}, ${data.region || ''}, ${data.country_name || ''} (IP Based)`.trim();
-            await processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, data.latitude, data.longitude, locationName);
+        if (data && data.status === 'success') {
+            const lat = data.lat;
+            const lon = data.lon;
+            const locationName = `${data.city || ''}, ${data.regionName || ''}, ${data.country || ''} (IP Based)`.trim();
+            
+            await processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, lat, lon, locationName);
         } else {
-            await processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, null, null, "Unknown Location");
+            await processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, null, null, "Bangladesh (Default)");
         }
     } catch (err) {
         console.warn("IP Geolocation failed:", err);
-        await processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, null, null, "Unknown Location");
+        await processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, null, null, "Offline Location");
     }
 }
 
@@ -206,7 +209,7 @@ function renderVerificationCard(product, itemCode, merchantName, merchantPhone, 
         statusIcon = 'fa-clock';
         headerStyle = 'background: linear-gradient(135deg, #d97706 0%, #b45309 100%);';
     } else if (isFraudulentMovement) {
-        statusText = 'সতর্কতা: অসম্ভব সময়ে দূরবর্তী স্থান থেকে নকল কিউআর স্ক্যান বা জালিয়াতির চেষ্টা!';
+        statusText = 'সতর্কতা: অসম্ভব সময়ে দূরবর্তী স্থান থেকে নকল কিউআর স্ক্যান বা জালিয়াতির চেষ্টা!';
         statusIcon = 'fa-triangle-exclamation';
         headerStyle = 'background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);';
     }
