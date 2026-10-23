@@ -147,6 +147,9 @@
     let activeMerchantId = null;
     let currentSelectedProductId = null;
 
+    // 🌟 আপনার লাইভ ওয়েবসাইটের ডোমেইন লিংক এখানে সেট করুন (যেমন: Vercel বা নিজস্ব ডোমেইন) 🌟
+    const liveDomain = "https://aidokan.vercel.app"; // আপনার লাইভ প্রজেক্ট লিংক এখানে দিন
+
     window.addEventListener('DOMContentLoaded', async () => {
       const userPhone = localStorage.getItem('userPhone');
       const userData = JSON.parse(localStorage.getItem('asolNokolUser') || '{}');
@@ -269,7 +272,7 @@
 
         const totalAllowedLimit = sub ? (sub.qr_limit || 0) : 0;
 
-        // ২. এই মার্চেন্টের এ পর্যন্ত মোট কতটি QR কোড জেনারেট হয়েছে তা বের করা
+        // ২. এই মার্চেন্টের এ পর্যন্ত মোট কতটি QR কোড জেনারেট হয়েছে তা বের করা
         const { count: totalUsedCount } = await supabaseClient
           .from('product_item_codes')
           .select('id', { count: 'exact', head: true })
@@ -301,7 +304,8 @@
 
         let codeHtml = '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">';
         codes.forEach((c) => {
-          const scanUrl = `${window.location.origin}/verify.html?code=${c.unique_code}`;
+          // 🌟 লোকাল file:/// সমস্যার সমাধান: সবসময় সরাসরি লাইভ ডোমেইন লিংক ব্যবহার করা হচ্ছে 🌟
+          const scanUrl = `${liveDomain}/verify.html?code=${c.unique_code}`;
           const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(scanUrl)}`;
 
           codeHtml += `
@@ -350,7 +354,6 @@
       genBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> প্রসেসিং...`;
 
       try {
-        // ১. মার্চেন্টের সাবস্ক্রিপশন ও ব্যালেন্স লিমিট চেক
         const { data: sub, error: sErr } = await supabaseClient
           .from('subscriptions')
           .select('*')
@@ -364,7 +367,6 @@
           return;
         }
 
-        // মেয়াদ ও পেমেন্ট স্ট্যাটাস যাচাই
         const now = new Date();
         const expiry = new Date(sub.expiry_date);
         if (sub.payment_status !== 'Approved' || expiry < now) {
@@ -372,7 +374,6 @@
           return;
         }
 
-        // মোট কতটি QR ইতিপূর্বে জেনারেট হয়েছে তা বের করা
         const { count: totalUsed, error: cErr } = await supabaseClient
           .from('product_item_codes')
           .select('id', { count: 'exact', head: true })
@@ -385,11 +386,10 @@
         const remaining = Math.max(0, limit - currentUsed);
 
         if (currentUsed + qty > limit) {
-          alert(`আপনার সাবস্ক্রিপশন কোটা শেষ! আপনি মোট কিনেছেন ${limit} টি, ইতিমধ্যে ব্যবহার করেছেন ${currentUsed} টি। আপনার অবশিষ্ট কোটা রয়েছে মাত্র ${remaining} টি। আপনি একসাথে ${qty} টি জেনারেট করতে পারবেন না।`);
+          alert(`আপনার সাবস্ক্রিপশন কোটা শেষ! আপনি মোট কিনেছেন ${limit} টি, ইতিমধ্যে ব্যবহার করেছেন ${currentUsed} টি। আপনার অবশিষ্ট কোটা রয়েছে মাত্র ${remaining} টি। আপনি একসাথে ${qty} টি জেনারেট করতে পারবেন না।`);
           return;
         }
 
-        // ২. ক্রিপ্টোগ্রাফিক নন-হ্যারেবল ইউনিক সিরিয়াল কোড জেনারেটর
         const batchCodes = [];
         const timeStamp = Date.now().toString(36).toUpperCase();
 
@@ -406,14 +406,12 @@
           });
         }
 
-        // ৩. ডাটাবেজে বাল্ক ইনসার্ট
         const { error: insErr } = await supabaseClient
           .from('product_item_codes')
           .insert(batchCodes);
 
         if (insErr) throw insErr;
 
-        // ৪. প্রোডাক্ট টেবিলে total_quantity আপডেট
         const { data: currentPrd } = await supabaseClient
           .from('products')
           .select('total_quantity')
@@ -427,7 +425,6 @@
           .update({ total_quantity: updatedQty })
           .eq('id', currentSelectedProductId);
 
-        // UI আপডেট
         const countSpan = document.getElementById(`pCount_${currentSelectedProductId}`);
         if (countSpan) countSpan.innerText = updatedQty;
 
@@ -519,7 +516,7 @@
           </body>
         </html>
       `);
-      printWin.document.close();
+      printWin.document.print();
     }
 
     function closeQrModal() {

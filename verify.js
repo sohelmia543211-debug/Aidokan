@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    // URL search params theke 'code' ba 'id' get kora
+    // URL search params থেকে 'code' বা 'id' সংগ্রহ করা
     const urlParams = new URLSearchParams(window.location.search);
     let rawCode = urlParams.get('code') || urlParams.get('id') || '';
     const cleanCode = rawCode.trim();
@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        // ১. product_item_codes টেবিল থেকে unique_code দিয়ে ফেচ করা
+        // ১. product_item_codes টেবিল থেকে unique_code দিয়ে ডাটা ফেচ করা
         const { data: itemCode, error: codeErr } = await supabaseClient
             .from('product_item_codes')
             .select('*')
@@ -18,11 +18,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             .maybeSingle();
 
         if (codeErr || !itemCode) {
-            renderError("অপ্রমাণিত বা অবৈধ কিউআর কোড! এই পণ্যটি আসল নকল সিস্টেমে নিবন্ধিত নয়।");
+            renderError("অবৈধ বা অপ্রমাণিত কিউআর কোড! এই পণ্যটি 'আসল নকল' সিস্টেমে নিবন্ধিত নয়।");
             return;
         }
 
-        // ২. products টেবিল থেকে প্রোডাক্টের ডাটা ফেচ করা
+        // ২. products টেবিল থেকে মূল প্রোডাক্টের ডাটা ফেচ করা
         const { data: product, error: prdErr } = await supabaseClient
             .from('products')
             .select('*')
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             .single();
 
         if (prdErr || !product) {
-            renderError("পণ্য সম্পর্কিত বিস্তারিত তথ্য পাওয়া যায়নি।");
+            renderError("পণ্য সম্পর্কিত বিস্তারিত তথ্য ডাটাবেজে পাওয়া যায়নি।");
             return;
         }
 
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 .from('users')
                 .select('org_name, full_name, phone_number')
                 .eq('id', product.merchant_id)
-                .single();
+                .maybeSingle();
 
             if (user) {
                 merchantName = user.org_name || user.full_name || merchantName;
@@ -51,8 +51,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
 
-        // ৪. প্রথমবারের মতো স্ক্যান হলে status 'is_scanned: true' আপডেট করা
-        if (!itemCode.is_scanned) {
+        // ৪. প্রথমবার স্ক্যানিং ট্র্যাকিং চেক
+        const wasAlreadyScanned = itemCode.is_scanned === true;
+
+        // যদি আগে স্ক্যান না হয়ে থাকে, তবে এখন true করে দেওয়া
+        if (!wasAlreadyScanned) {
             await supabaseClient
                 .from('product_item_codes')
                 .update({ is_scanned: true })
@@ -60,43 +63,63 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         // কার্ড রেন্ডার করা
-        renderVerificationCard(product, itemCode, merchantName, merchantPhone);
+        renderVerificationCard(product, itemCode, merchantName, merchantPhone, wasAlreadyScanned);
 
     } catch (err) {
         console.error("Verification Error:", err.message);
-        renderError("সার্ভারে সমস্যা হয়েছে! অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন।");
+        renderError("সার্ভারে সংযোগে সমস্যা হয়েছে! অনুগ্রহ করে কিছুক্ষণ পর চেষ্টা করুন।");
     }
 });
 
-function renderVerificationCard(product, itemCode, merchantName, merchantPhone) {
+function renderVerificationCard(product, itemCode, merchantName, merchantPhone, wasAlreadyScanned) {
     const contentArea = document.getElementById('content-area');
 
-    const isOriginal = product.status && product.status.toLowerCase() === 'approved';
-    const statusText = isOriginal ? '১০০% আসল ও রেজিস্টার্ড পণ্য' : 'যাচাইকরণ প্রক্রিয়াধীন';
-    const statusIcon = isOriginal ? 'fa-shield-check' : 'fa-clock';
+    // স্ট্যাটাস ও ভেরিফিকেশন লজিক
+    const isApproved = product.status && product.status.toLowerCase() === 'approved';
+    
+    let statusText = '১০০% আসল ও রেজিস্টার্ড পণ্য';
+    let statusIcon = 'fa-circle-check';
+    let headerStyle = '';
 
-    // Image URL handle (jsonb array)
+    if (!isApproved) {
+        statusText = 'যাচাইকরণ প্রক্রিয়াধীন';
+        statusIcon = 'fa-clock';
+        headerStyle = 'background: linear-gradient(135deg, #d97706 0%, #b45309 100%);';
+    } else if (wasAlreadyScanned) {
+        statusText = 'সতর্কতা: পণ্যটি ইতিপূর্বে একবার স্ক্যান হয়েছে!';
+        statusIcon = 'fa-triangle-exclamation';
+        headerStyle = 'background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);';
+    }
+
+    // ছবির URL হ্যান্ডেল করা (JSON array বা string)
     let imageUrl = '';
-    if (product.product_images && Array.isArray(product.product_images) && product.product_images.length > 0) {
-        imageUrl = product.product_images[0];
-    } else if (typeof product.product_images === 'string') {
-        imageUrl = product.product_images;
+    if (product.product_images) {
+        if (Array.isArray(product.product_images) && product.product_images.length > 0) {
+            imageUrl = product.product_images[0];
+        } else if (typeof product.product_images === 'string') {
+            try {
+                const parsed = JSON.parse(product.product_images);
+                imageUrl = Array.isArray(parsed) ? parsed[0] : product.product_images;
+            } catch (e) {
+                imageUrl = product.product_images;
+            }
+        }
     }
 
     contentArea.innerHTML = `
-        <div class="card-header">
+        <div class="card-header" style="${headerStyle}">
             <div class="badge-icon">
                 <i class="fa-solid ${statusIcon}"></i>
             </div>
             <h2>অফিসিয়ালি ভেরিফাইড প্রোডাক্ট</h2>
             <div class="status-badge">
-                <i class="fa-solid fa-check-double"></i> ${statusText}
+                <i class="fa-solid fa-shield-check"></i> ${statusText}
             </div>
         </div>
 
         ${imageUrl ? `
         <div class="verified-image-container">
-            <img src="${imageUrl}" alt="${product.title}" class="verified-img" onerror="this.parentElement.style.display='none'">
+            <img src="${imageUrl}" alt="${product.title || 'পণ্য'}" class="verified-img" onerror="this.parentElement.style.display='none'">
         </div>` : ''}
 
         <div class="card-body">
@@ -106,8 +129,8 @@ function renderVerificationCard(product, itemCode, merchantName, merchantPhone) 
             </div>
 
             <div class="info-group">
-                <span class="label">ইউনিক সিকিউর কোড:</span>
-                <span class="value font-mono text-xs text-sky-600">${itemCode.unique_code}</span>
+                <span class="label">সিকিউর কোড:</span>
+                <span class="value font-mono text-xs" style="color: #0284c7; font-weight: 700;">${itemCode.unique_code}</span>
             </div>
 
             <div class="info-group">
@@ -129,7 +152,7 @@ function renderVerificationCard(product, itemCode, merchantName, merchantPhone) 
             ${product.exp_date ? `
             <div class="info-group">
                 <span class="label">মেয়াদ উত্তীর্ণ:</span>
-                <span class="value text-rose-600">${product.exp_date}</span>
+                <span class="value" style="color: #e11d48; font-weight: 700;">${product.exp_date}</span>
             </div>` : ''}
 
             ${product.license_no ? `
@@ -147,7 +170,7 @@ function renderVerificationCard(product, itemCode, merchantName, merchantPhone) 
             <div class="info-group">
                 <span class="label">যোগাযোগ:</span>
                 <span class="value">
-                    <a href="tel:${merchantPhone}" style="color: #0284c7; text-decoration: none;">
+                    <a href="tel:${merchantPhone}" style="color: #0284c7; text-decoration: none; font-weight: 700;">
                         <i class="fa-solid fa-phone"></i> ${merchantPhone}
                     </a>
                 </span>
@@ -155,8 +178,8 @@ function renderVerificationCard(product, itemCode, merchantName, merchantPhone) 
 
             ${product.description ? `
             <div style="margin-top: 15px; padding-top: 12px; border-top: 1px dashed #e2e8f0;">
-                <span class="label" style="display:block; margin-bottom: 6px;">পণ্যের বিবরণ:</span>
-                <p style="font-size: 13px; color: #334155; line-height: 1.5;">${product.description}</p>
+                <span class="label" style="display:block; margin-bottom: 6px; font-weight: 600;">পণ্যের বিবরণ:</span>
+                <p style="font-size: 13px; color: #334155; line-height: 1.6; white-space: pre-line;">${product.description}</p>
             </div>` : ''}
         </div>
     `;
@@ -165,10 +188,10 @@ function renderVerificationCard(product, itemCode, merchantName, merchantPhone) 
 function renderError(message) {
     const contentArea = document.getElementById('content-area');
     contentArea.innerHTML = `
-        <div class="state-container">
-            <i class="fa-solid fa-triangle-exclamation" style="font-size: 48px; color: #ef4444; margin-bottom: 12px;"></i>
-            <h3 style="color: #ef4444; margin-bottom: 8px;">ভেরিফিকেশন ব্যর্থ হয়েছে</h3>
-            <p style="color: #64748b; font-size: 13px;">${message}</p>
+        <div class="state-container" style="padding: 40px 20px;">
+            <i class="fa-solid fa-circle-xmark" style="font-size: 52px; color: #ef4444; margin-bottom: 14px;"></i>
+            <h3 style="color: #ef4444; font-size: 18px; font-weight: 700; margin-bottom: 8px;">ভেরিফিকেশন ব্যর্থ হয়েছে</h3>
+            <p style="color: #64748b; font-size: 13px; line-height: 1.5;">${message}</p>
         </div>
     `;
 }
