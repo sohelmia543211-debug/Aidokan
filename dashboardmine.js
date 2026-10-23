@@ -55,11 +55,9 @@ function toggleSideMenu() {
   const overlay = document.getElementById('sideMenuOverlay');
 
   if (drawer.classList.contains('-translate-x-full')) {
-    // মেনু স্লাইড ইন করানো
     drawer.classList.remove('-translate-x-full');
     overlay.classList.remove('hidden');
   } else {
-    // মেনু স্লাইড আউট করানো
     drawer.classList.add('-translate-x-full');
     overlay.classList.add('hidden');
   }
@@ -72,7 +70,7 @@ function updateDocumentAndPermissionStatus(user) {
   const bannerTitle = document.getElementById('docBannerTitle');
   const bannerSub = document.getElementById('docBannerSub');
   const bannerBtn = document.getElementById('docBannerBtn');
-  const createGigBtns = document.querySelectorAll('a[href="create_gig.html"]');
+  const createGigBtns = document.querySelectorAll('a[href="marchent_product_upload.html"]');
   const statusTag = document.getElementById('statusTag');
   const merchantBadge = document.getElementById('merchantBadge');
 
