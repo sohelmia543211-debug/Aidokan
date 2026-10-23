@@ -51,23 +51,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
 
-        // ৪. ইউজারের ব্রাউজার থেকে জিপিএস লোকেশন নেওয়া এবং স্পিড/ভেলোসিটি চেক করা
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                async (position) => {
-                    const currentLat = position.coords.latitude;
-                    const currentLng = position.coords.longitude;
-                    await processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, currentLat, currentLng);
-                },
-                async (error) => {
-                    // লোকেশন পারমিশন না দিলে লোকেশন ছাড়া সাধারণ কাউন্ট ভেরিফিকেশন হবে
-                    await processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, null, null);
-                },
-                { timeout: 7000, enableHighAccuracy: true }
-            );
-        } else {
-            await processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, null, null);
-        }
+        // ৪. লোকেশন ডিটেকশন (প্রথমে জিপিএস, না পেলে ব্যাকগ্রাউন্ড আইপি ট্র্যাকিং)
+        getLocationAndProcess(product, itemCode, merchantName, merchantPhone);
 
     } catch (err) {
         console.error("Verification Error:", err.message);
@@ -75,16 +60,68 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+// স্মার্ট লোকেশন ট্র্যাকার (GPS -> IP Fallback)
+function getLocationAndProcess(product, itemCode, merchantName, merchantPhone) {
+    let gpsHandled = false;
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                gpsHandled = true;
+                const currentLat = position.coords.latitude;
+                const currentLng = position.coords.longitude;
+                await processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, currentLat, currentLng, "GPS Location");
+            },
+            async (error) => {
+                // জিপিএস পারমিশন ব্লক বা ফেইল করলে অটো আইপি (IP) দিয়ে লোকেশন আনবে
+                if (!gpsHandled) {
+                    gpsHandled = true;
+                    await fetchLocationByIPAndProcess(product, itemCode, merchantName, merchantPhone);
+                }
+            },
+            { timeout: 5000, enableHighAccuracy: true }
+        );
+
+        // ৫ সেকেন্ডের মধ্যে জিপিএস না সাড়া দিলে আইপিতে সুইচ করবে
+        setTimeout(async () => {
+            if (!gpsHandled) {
+                gpsHandled = true;
+                await fetchLocationByIPAndProcess(product, itemCode, merchantName, merchantPhone);
+            }
+        }, 5500);
+    } else {
+        fetchLocationByIPAndProcess(product, itemCode, merchantName, merchantPhone);
+    }
+}
+
+// IP Address দিয়ে ব্যাকগ্রাউন্ডে লোকেশন বের করার ফাংশন
+async function fetchLocationByIPAndProcess(product, itemCode, merchantName, merchantPhone) {
+    try {
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+        
+        if (data && data.latitude && data.longitude) {
+            const locationName = `${data.city || ''}, ${data.region || ''}, ${data.country_name || ''} (IP Based)`.trim();
+            await processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, data.latitude, data.longitude, locationName);
+        } else {
+            await processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, null, null, "Unknown Location");
+        }
+    } catch (err) {
+        console.warn("IP Geolocation failed:", err);
+        await processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, null, null, "Unknown Location");
+    }
+}
+
 // স্পিড চেক, লোকেশন আপডেট ও স্ক্যান হিস্ট্রি লগ করার ফাংশন
-async function processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, currentLat, currentLng) {
+async function processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, currentLat, currentLng, locationSource) {
     let isFraudulentMovement = false;
     let newScanCount = (itemCode.scan_count || 0) + 1;
     const now = new Date();
 
-    // ১. সময় ও দূরত্বের যৌক্তিকতা পরীক্ষা (Velocity Check)
+    // ১. সময় ও দূরত্বের যৌক্তিকতা পরীক্ষা (Velocity Check)
     if (itemCode.first_scan_lat && itemCode.first_scan_lng && itemCode.updated_at && currentLat && currentLng) {
         const lastScanTime = new Date(itemCode.updated_at);
-        const timeDiffHours = (now - lastScanTime) / (1000 * 60 * 60); // ঘণ্টায় সময়
+        const timeDiffHours = (now - lastScanTime) / (1000 * 60 * 60); // ঘণ্টায় সময়
         const distanceKm = getDistanceFromLatLonInKm(
             itemCode.first_scan_lat, itemCode.first_scan_lng,
             currentLat, currentLng
@@ -92,7 +129,7 @@ async function processSecurityAndLocation(product, itemCode, merchantName, merch
 
         if (timeDiffHours > 0) {
             const calculatedSpeed = distanceKm / timeDiffHours;
-            // যদি ভ্রমণের গতি ৭০ কিমি/ঘণ্টার বেশি হয় এবং দূরত্ব ১০ কিমির বেশি হয়
+            // যদি ভ্রমণের গতি ৭০ কিমি/ঘণ্টার বেশি হয় এবং দূরত্ব ১০ কিমির বেশি হয়
             if (calculatedSpeed > 70 && distanceKm > 10) {
                 isFraudulentMovement = true;
             }
@@ -106,13 +143,11 @@ async function processSecurityAndLocation(product, itemCode, merchantName, merch
         updated_at: now.toISOString()
     };
 
-    // প্রথম স্ক্যান লোকেশন না থাকলে তা সেট করা
     if (!itemCode.first_scan_lat && currentLat) {
         updatePayload.first_scan_lat = currentLat;
         updatePayload.first_scan_lng = currentLng;
     }
 
-    // সর্বশেষ স্ক্যান লোকেশন আপডেট
     if (currentLat) {
         updatePayload.last_scan_lat = currentLat;
         updatePayload.last_scan_lng = currentLng;
@@ -132,15 +167,16 @@ async function processSecurityAndLocation(product, itemCode, merchantName, merch
             unique_code: itemCode.unique_code,
             latitude: currentLat || null,
             longitude: currentLng || null,
+            location_name: locationSource || null,
             is_suspicious: isFraudulentMovement,
             scanned_at: now.toISOString()
         }]);
 
-    // ৪. কার্ড রেন্ডার করা
-    renderVerificationCard(product, itemCode, merchantName, merchantPhone, isFraudulentMovement, newScanCount, currentLat, currentLng);
+    // ৪. ভেরিফিকেশন কার্ড রেন্ডার করা
+    renderVerificationCard(product, itemCode, merchantName, merchantPhone, isFraudulentMovement, newScanCount, currentLat, currentLng, locationSource);
 }
 
-// দুই পয়েন্টের দূরত্ব নির্ণয়ের সূত্র (Haversine formula)
+// দুই পয়েন্টের দূরত্ব নির্ণয়ের সূত্র (Haversine formula)
 function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
     const R = 6371; // পৃথিবীর ব্যাসার্ধ (কিমি)
     const dLat = deg2rad(lat2 - lat1);
@@ -157,7 +193,7 @@ function deg2rad(deg) {
     return deg * (Math.PI / 180);
 }
 
-function renderVerificationCard(product, itemCode, merchantName, merchantPhone, isFraudulentMovement, scanCount, lat, lng) {
+function renderVerificationCard(product, itemCode, merchantName, merchantPhone, isFraudulentMovement, scanCount, lat, lng, locationSource) {
     const contentArea = document.getElementById('content-area');
     const isApproved = product.status && product.status.toLowerCase() === 'approved';
 
@@ -170,8 +206,7 @@ function renderVerificationCard(product, itemCode, merchantName, merchantPhone, 
         statusIcon = 'fa-clock';
         headerStyle = 'background: linear-gradient(135deg, #d97706 0%, #b45309 100%);';
     } else if (isFraudulentMovement) {
-        // অসম্ভব দূরত্ব বা জালিয়াতি ধরা পড়লে
-        statusText = 'সতর্কতা: অসম্ভব সময়ে দূরবর্তী স্থান থেকে নকল কিউআর স্ক্যান বা জালিয়াতির চেষ্টা!';
+        statusText = 'সতর্কতা: অসম্ভব সময়ে দূরবর্তী স্থান থেকে নকল কিউআর স্ক্যান বা জালিয়াতির চেষ্টা!';
         statusIcon = 'fa-triangle-exclamation';
         headerStyle = 'background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);';
     }
@@ -190,7 +225,7 @@ function renderVerificationCard(product, itemCode, merchantName, merchantPhone, 
         }
     }
 
-    // গুগল ম্যাপস লিংক যাতে লোকেশন ক্লিক করলেই ম্যাপে দেখা যায়
+    // গুগল ম্যাপস ও লোকেশন ট্যাগ
     let mapLinkHtml = '';
     if (lat && lng) {
         const googleMapUrl = `https://www.google.com/maps?q=${lat},${lng}`;
@@ -199,7 +234,7 @@ function renderVerificationCard(product, itemCode, merchantName, merchantPhone, 
                 <span class="label">স্ক্যানকৃত লোকেশন:</span>
                 <span class="value">
                     <a href="${googleMapUrl}" target="_blank" style="color: #0284c7; text-decoration: underline; font-weight: 700;">
-                        <i class="fa-solid fa-location-dot"></i> ম্যাপে লোকেশন দেখুন (GPS)
+                        <i class="fa-solid fa-location-dot"></i> ম্যাপে দেখুন (${locationSource})
                     </a>
                 </span>
             </div>
