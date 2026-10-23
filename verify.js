@@ -1,16 +1,16 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    // URL search params থেকে 'code' বা 'id' সংগ্রহ করা
+    // URL search params theke 'code' ba 'id' songroh kora
     const urlParams = new URLSearchParams(window.location.search);
     let rawCode = urlParams.get('code') || urlParams.get('id') || '';
     const cleanCode = rawCode.trim();
 
     if (!cleanCode) {
-        renderError("সিকিউরড কিউআর কোড পাওয়া যায়নি!");
+        renderError("Secured QR code pawa jayni!");
         return;
     }
 
     try {
-        // ১. product_item_codes টেবিল থেকে unique_code দিয়ে ডাটা ফেচ করা
+        // 1. product_item_codes table theke unique_code diye data fetch kora
         const { data: itemCode, error: codeErr } = await supabaseClient
             .from('product_item_codes')
             .select('*')
@@ -18,11 +18,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             .maybeSingle();
 
         if (codeErr || !itemCode) {
-            renderError("অবৈধ বা অপ্রমাণিত কিউআর কোড! এই পণ্যটি 'আসল নকল' সিস্টেমে নিবন্ধিত নয়।");
+            renderError("Oboidho ba oprobanito QR code! Ei ponnoti 'Asol Nokol' system-e registered noy.");
             return;
         }
 
-        // ২. products টেবিল থেকে মূল প্রোডাক্টের ডাটা ফেচ করা
+        // 2. products table theke mul product-er data fetch kora
         const { data: product, error: prdErr } = await supabaseClient
             .from('products')
             .select('*')
@@ -30,12 +30,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             .single();
 
         if (prdErr || !product) {
-            renderError("পণ্য সম্পর্কিত বিস্তারিত তথ্য ডাটাবেজে পাওয়া যায়নি।");
+            renderError("Ponno somporkito bistarito tothyo database-e pawa jayni.");
             return;
         }
 
-        // ৩. মার্চেন্ট বা প্রতিষ্ঠানের তথ্য ফেচ করা
-        let merchantName = 'অফিসিয়াল মার্চেন্ট';
+        // 3. Merchant ba protishthaner tothyo fetch kora
+        let merchantName = 'Official Merchant';
         let merchantPhone = null;
 
         if (product.merchant_id) {
@@ -51,16 +51,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
 
-        // ৪. লোকেশন ডিটেকশন (প্রথমে জিপিএস, না পেলে ব্যাকগ্রাউন্ড আইপি ট্র্যাকিং)
+        // 4. Location detection (GPS -> Background IP Fallback)
         getLocationAndProcess(product, itemCode, merchantName, merchantPhone);
 
     } catch (err) {
         console.error("Verification Error:", err.message);
-        renderError("সার্ভারে সংযোগে সমস্যা হয়েছে! অনুগ্রহ করে কিছুক্ষণ পর চেষ্টা করুন।");
+        renderError("Server-e somoshya hoyeche! Anugroh kore kichukhon por chesta korun.");
     }
 });
 
-// স্মার্ট লোকেশন ট্র্যাকার (GPS -> IP Fallback)
+// Smart Location Tracker (Background tracking only)
 function getLocationAndProcess(product, itemCode, merchantName, merchantPhone) {
     let gpsHandled = false;
 
@@ -73,7 +73,6 @@ function getLocationAndProcess(product, itemCode, merchantName, merchantPhone) {
                 await processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, currentLat, currentLng, "GPS Location");
             },
             async (error) => {
-                // জিপিএস পারমিশন ব্লক বা ফেইল করলে অটো আইপি (IP) দিয়ে লোকেশন আনবে
                 if (!gpsHandled) {
                     gpsHandled = true;
                     await fetchLocationByIPAndProcess(product, itemCode, merchantName, merchantPhone);
@@ -82,7 +81,6 @@ function getLocationAndProcess(product, itemCode, merchantName, merchantPhone) {
             { timeout: 5000, enableHighAccuracy: true }
         );
 
-        // ৫ সেকেন্ডের মধ্যে জিপিএস না সাড়া দিলে আইপিতে সুইচ করবে
         setTimeout(async () => {
             if (!gpsHandled) {
                 gpsHandled = true;
@@ -94,10 +92,9 @@ function getLocationAndProcess(product, itemCode, merchantName, merchantPhone) {
     }
 }
 
-// IP Address দিয়ে ব্যাকগ্রাউন্ডে নিখুঁত লোকেশন ও ল্যাটিটিউড-লংটিউড বের করার ফিক্সড ফাংশন
+// IP Address দিয়ে ব্যাকগ্রাউন্ড লোকেশন সেভ করার ফাংশন
 async function fetchLocationByIPAndProcess(product, itemCode, merchantName, merchantPhone) {
     try {
-        // প্রথম ট্রাই: ipapi.co
         const res = await fetch('https://ipapi.co/json/');
         const data = await res.json();
         
@@ -114,7 +111,6 @@ async function fetchLocationByIPAndProcess(product, itemCode, merchantName, merc
     }
 
     try {
-        // দ্বিতীয় ট্রাই (ব্যাকআপ): geoplugin.net (যাতে কোনোভাবেই ল্যাটিটিউড-লংটিউড NULL না হয়)
         const res2 = await fetch('https://www.geoplugin.net/json.gp');
         const data2 = await res2.json();
 
@@ -127,23 +123,21 @@ async function fetchLocationByIPAndProcess(product, itemCode, merchantName, merc
             return;
         }
     } catch (err2) {
-        console.warn("Backup IP API also failed:", err2);
+        console.warn("Backup IP API failed:", err2);
     }
 
-    // কোনোভাবেই না পেলে ডিফল্ট ঢাকা বা বাংলাদেশ লোকেশন দিয়ে সেভ করবে
     await processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, 23.8103, 90.4125, "Bangladesh (Default IP)");
 }
 
-// স্পিড চেক, লোকেশন আপডেট ও স্ক্যান হিস্ট্রি লগ করার ফাংশন
+// Speed check, location update & scan history log
 async function processSecurityAndLocation(product, itemCode, merchantName, merchantPhone, currentLat, currentLng, locationSource) {
     let isFraudulentMovement = false;
     let newScanCount = (itemCode.scan_count || 0) + 1;
     const now = new Date();
 
-    // ১. সময় ও দূরত্বের যৌক্তিকতা পরীক্ষা (Velocity Check)
     if (itemCode.first_scan_lat && itemCode.first_scan_lng && itemCode.updated_at && currentLat && currentLng) {
         const lastScanTime = new Date(itemCode.updated_at);
-        const timeDiffHours = (now - lastScanTime) / (1000 * 60 * 60); // ঘণ্টায় সময়
+        const timeDiffHours = (now - lastScanTime) / (1000 * 60 * 60);
         const distanceKm = getDistanceFromLatLonInKm(
             itemCode.first_scan_lat, itemCode.first_scan_lng,
             currentLat, currentLng
@@ -151,14 +145,12 @@ async function processSecurityAndLocation(product, itemCode, merchantName, merch
 
         if (timeDiffHours > 0) {
             const calculatedSpeed = distanceKm / timeDiffHours;
-            // যদি ভ্রমণের গতি ৭০ কিমি/ঘণ্টার বেশি হয় এবং দূরত্ব ১০ কিমির বেশি হয়
             if (calculatedSpeed > 70 && distanceKm > 10) {
                 isFraudulentMovement = true;
             }
         }
     }
 
-    // ২. মূল product_item_codes টেবিলে আপডেট পে-লোড
     let updatePayload = {
         scan_count: newScanCount,
         is_scanned: true,
@@ -180,7 +172,6 @@ async function processSecurityAndLocation(product, itemCode, merchantName, merch
         .update(updatePayload)
         .eq('id', itemCode.id);
 
-    // ৩. প্রতিটি স্ক্যানের জন্য আলাদা হিস্ট্রি লগ (product_scan_logs) ইনসার্ট করা
     await supabaseClient
         .from('product_scan_logs')
         .insert([{
@@ -194,13 +185,11 @@ async function processSecurityAndLocation(product, itemCode, merchantName, merch
             scanned_at: now.toISOString()
         }]);
 
-    // ৪. ভেরিফিকেশন কার্ড রেন্ডার করা
-    renderVerificationCard(product, itemCode, merchantName, merchantPhone, isFraudulentMovement, newScanCount, currentLat, currentLng, locationSource);
+    renderVerificationCard(product, itemCode, merchantName, merchantPhone, isFraudulentMovement, newScanCount);
 }
 
-// দুই পয়েন্টের দূরত্ব নির্ণয়ের সূত্র (Haversine formula)
 function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-    const R = 6371; // পৃথিবীর ব্যাসার্ধ (কিমি)
+    const R = 6371;
     const dLat = deg2rad(lat2 - lat1);
     const dLon = deg2rad(lon2 - lon1);
     const a =
@@ -215,20 +204,21 @@ function deg2rad(deg) {
     return deg * (Math.PI / 180);
 }
 
-function renderVerificationCard(product, itemCode, merchantName, merchantPhone, isFraudulentMovement, scanCount, lat, lng, locationSource) {
+// Fixed UI Render Function
+function renderVerificationCard(product, itemCode, merchantName, merchantPhone, isFraudulentMovement, scanCount) {
     const contentArea = document.getElementById('content-area');
     const isApproved = product.status && product.status.toLowerCase() === 'approved';
 
     let statusText = '১০০% আসল ও রেজিস্টার্ড পণ্য';
     let statusIcon = 'fa-circle-check';
-    let headerStyle = '';
+    let headerStyle = 'background: linear-gradient(135deg, #10b981 0%, #059669 100%);';
 
     if (!isApproved) {
         statusText = 'যাচাইকরণ প্রক্রিয়াধীন';
         statusIcon = 'fa-clock';
         headerStyle = 'background: linear-gradient(135deg, #d97706 0%, #b45309 100%);';
     } else if (isFraudulentMovement) {
-        statusText = 'সতর্কতা: অসম্ভব সময়ে দূরবর্তী স্থান থেকে নকল কিউআর স্ক্যান বা জালিয়াতির চেষ্টা!';
+        statusText = 'সতর্কতা: অসম্ভব সময়ে নকল কিউআর স্ক্যান বা জালিয়াতির চেষ্টা!';
         statusIcon = 'fa-triangle-exclamation';
         headerStyle = 'background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);';
     }
@@ -247,42 +237,35 @@ function renderVerificationCard(product, itemCode, merchantName, merchantPhone, 
         }
     }
 
-    // গুগল ম্যাপস ও লোকেশন ট্যাগ
-    let mapLinkHtml = '';
-    if (lat && lng) {
-        const googleMapUrl = `https://www.google.com/maps?q=${lat},${lng}`;
-        mapLinkHtml = `
-            <div class="info-group" style="background: rgba(14, 165, 233, 0.1); padding: 8px 12px; border-radius: 12px; margin-top: 8px;">
-                <span class="label">স্ক্যানকৃত লোকেশন:</span>
-                <span class="value">
-                    <a href="${googleMapUrl}" target="_blank" style="color: #0284c7; text-decoration: underline; font-weight: 700;">
-                        <i class="fa-solid fa-location-dot"></i> ম্যাপে দেখুন (${locationSource})
-                    </a>
-                </span>
-            </div>
-        `;
-    }
-
     contentArea.innerHTML = `
-        <div class="card-header" style="${headerStyle}">
-            <div class="badge-icon">
+        <div class="card-header" style="${headerStyle}; padding: 22px 16px; text-align: center; border-radius: 16px 16px 0 0;">
+            <div class="badge-icon" style="font-size: 38px; color: #ffffff; margin-bottom: 8px;">
                 <i class="fa-solid ${statusIcon}"></i>
             </div>
-            <h2>অফিসিয়ালি ভেরিফাইড প্রোডাক্ট</h2>
-            <div class="status-badge">
+            <h2 style="font-size: 20px; font-weight: 700; color: #ffffff; margin-bottom: 8px;">অফিসিয়ালি ভেরিফাইড প্রোডাক্ট</h2>
+            
+            <!-- 100% Asol o Registered Ponno Badge Highlight -->
+            <div class="status-badge" style="display: inline-block; background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(4px); border: 1px solid rgba(255, 255, 255, 0.4); color: #ffffff; padding: 8px 16px; border-radius: 30px; font-size: 15px; font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
                 <i class="fa-solid fa-shield-check"></i> ${statusText}
             </div>
         </div>
 
         ${imageUrl ? `
-        <div class="verified-image-container">
-            <img src="${imageUrl}" alt="${product.title || 'পণ্য'}" class="verified-img" onerror="this.parentElement.style.display='none'">
+        <div class="verified-image-container" style="text-align: center; margin-top: 15px;">
+            <img src="${imageUrl}" alt="${product.title || 'পণ্য'}" class="verified-img" style="max-width: 140px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);" onerror="this.parentElement.style.display='none'">
         </div>` : ''}
 
-        <div class="card-body">
+        <div class="card-body" style="padding: 16px;">
+            
+            <!-- Company / Merchant Name (Top Highlighted) -->
+            <div class="info-group" style="background: #f8fafc; padding: 12px 14px; border-radius: 10px; border-left: 4px solid #0284c7; margin-bottom: 12px;">
+                <span class="label" style="font-size: 12px; color: #64748b; display: block; font-weight: 600;">কোম্পানি / মার্চেন্ট:</span>
+                <span class="value" style="font-size: 18px; font-weight: 700; color: #0f172a;">${merchantName}</span>
+            </div>
+
             <div class="info-group">
                 <span class="label">পণ্যের নাম:</span>
-                <span class="value">${product.title || 'N/A'}</span>
+                <span class="value" style="font-weight: 600;">${product.title || 'N/A'}</span>
             </div>
 
             <div class="info-group">
@@ -294,8 +277,6 @@ function renderVerificationCard(product, itemCode, merchantName, merchantPhone, 
                 <span class="label">মোট স্ক্যান সংখ্যা:</span>
                 <span class="value font-mono" style="color: #0284c7; font-weight: 700;">${scanCount} বার</span>
             </div>
-
-            ${mapLinkHtml}
 
             <div class="info-group">
                 <span class="label">মূল্য (Price):</span>
@@ -325,11 +306,7 @@ function renderVerificationCard(product, itemCode, merchantName, merchantPhone, 
                 <span class="value font-mono">${product.license_no}</span>
             </div>` : ''}
 
-            <div class="info-group">
-                <span class="label">মার্চেন্ট / প্রতিষ্ঠান:</span>
-                <span class="value">${merchantName}</span>
-            </div>
-
+            <!-- Phone Number (Show only if available) -->
             ${merchantPhone ? `
             <div class="info-group">
                 <span class="label">যোগাযোগ:</span>
@@ -352,7 +329,7 @@ function renderVerificationCard(product, itemCode, merchantName, merchantPhone, 
 function renderError(message) {
     const contentArea = document.getElementById('content-area');
     contentArea.innerHTML = `
-        <div class="state-container" style="padding: 40px 20px;">
+        <div class="state-container" style="padding: 40px 20px; text-align: center;">
             <i class="fa-solid fa-circle-xmark" style="font-size: 52px; color: #ef4444; margin-bottom: 14px;"></i>
             <h3 style="color: #ef4444; font-size: 18px; font-weight: 700; margin-bottom: 8px;">ভেরিফিকেশন ব্যর্থ হয়েছে</h3>
             <p style="color: #64748b; font-size: 13px; line-height: 1.5;">${message}</p>
