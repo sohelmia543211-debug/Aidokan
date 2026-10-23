@@ -129,14 +129,25 @@
             const userData = JSON.parse(localStorage.getItem('asolNokolUser') || '{}');
             const phone = userPhone || userData.phone_number;
 
+            if (!phone) {
+                alert("আপনার লগইন সেশন পাওয়া যায়নি। অনুগ্রহ করে আবার লগইন করুন।");
+                window.location.href = 'login.html';
+                return;
+            }
+
             try {
-                // Fetch Merchant User ID
-                const { data: user, error: uErr } = await supabaseClient.from('users').select('id, main_category, sub_category').eq('phone_number', phone).single();
-                if (uErr || !user) throw new Error("Merchant account not found!");
+                // ১. মার্চেন্ট একাউন্ট চেক
+                const { data: user, error: uErr } = await supabaseClient
+                    .from('users')
+                    .select('id, main_category, sub_category')
+                    .eq('phone_number', phone)
+                    .maybeSingle();
+
+                if (uErr || !user) throw new Error("মার্চেন্ট অ্যাকাউন্ট ডাটাবেজে পাওয়া যায়নি!");
 
                 const qty = parseInt(document.getElementById('p_qty').value);
 
-                // 🌟 ১. সাবস্ক্রিপশন কোটা চেক (Subscription Limit Validation) 🌟
+                // ২. সাবস্ক্রিপশন কোটা যাচাই (Fix Case sensitivity)
                 const { data: sub, error: sErr } = await supabaseClient
                     .from('subscriptions')
                     .select('*')
@@ -149,14 +160,16 @@
                     throw new Error("আপনার কোনো অ্যাক্টিভ সাবস্ক্রিপশন পাওয়া যায়নি! পণ্য যোগ করতে প্রথমে সাবস্ক্রিপশন নিন।");
                 }
 
-                // পেমেন্ট স্ট্যাটাস এবং মেয়াদ চেক
+                // পেমেন্ট স্ট্যাটাস (Approved / approved উভয় ফরম্যাট গ্রহণ করবে)
                 const now = new Date();
                 const expiry = new Date(sub.expiry_date);
-                if (sub.payment_status !== 'Approved' || expiry < now) {
-                    throw new Error("আপনার সাবস্ক্রিপশনের মেয়াদ শেষ বা পেন্ডিং রয়েছে! দয়া করে পেমেন্ট সম্পন্ন করুন।");
+                const statusLower = (sub.payment_status || '').toLowerCase();
+
+                if (statusLower !== 'approved' || expiry < now) {
+                    throw new Error("আপনার সাবস্ক্রিপশনের মেয়াদ শেষ বা পেমেন্ট পেন্ডিং রয়েছে!");
                 }
 
-                // মোট কতটি QR ইতিপূর্বে জেনারেট হয়েছে তা বের করা
+                // ৩. ব্যবহৃত QR কোড গণনা করা
                 const { count: totalUsed, error: cErr } = await supabaseClient
                     .from('product_item_codes')
                     .select('id', { count: 'exact', head: true })
@@ -168,9 +181,8 @@
                 const currentUsed = totalUsed || 0;
                 const remaining = Math.max(0, limit - currentUsed);
 
-                // যদি অবশিষ্ট কোটার চেয়ে বেশি ইউনিট দিতে চায়
                 if (currentUsed + qty > limit) {
-                    throw new Error(`আপনার কোটা শেষ! আপনি মোট কিনেছেন ${limit} টি, ইতিমধ্যে ব্যবহার করেছেন ${currentUsed} টি। আপনার অবশিষ্ট কোটা রয়েছে মাত্র ${remaining} টি। আপনি একসাথে ${qty} টি পণ্য যোগ করতে পারবেন না।`);
+                    throw new Error(`আপনার কোটা শেষ! আপনি মোট কিনেছেন ${limit} টি, ইতিমধ্যে ব্যবহার করেছেন ${currentUsed} টি। অবশিষ্ট কোটা রয়েছে মাত্র ${remaining} টি।`);
                 }
 
                 const title = document.getElementById('p_title').value.trim();
@@ -181,7 +193,7 @@
                 const license = document.getElementById('p_license').value.trim() || null;
                 const desc = document.getElementById('p_desc').value.trim();
 
-                // Image Upload to Supabase Storage Bucket ('product_image')
+                // ৪. ছবি আপলোড (Supabase Storage Bucket: 'product_image')
                 const imageFile = document.getElementById('p_image').files[0];
                 let imageUrls = [];
 
@@ -195,7 +207,7 @@
                         .from('product_image')
                         .upload(filePath, imageFile);
 
-                    if (uploadErr) throw new Error("Image Upload Failed: " + uploadErr.message);
+                    if (uploadErr) throw new Error("ছবি আপলোড ব্যর্থ হয়েছে: " + uploadErr.message);
 
                     const { data: publicUrlData } = supabaseClient
                         .storage
@@ -207,26 +219,30 @@
                     }
                 }
 
-                // 2. Insert into Products Table with status 'Approved'
-                const { data: product, error: pErr } = await supabaseClient.from('products').insert([{
-                    merchant_id: user.id,
-                    title: title,
-                    price: price,
-                    batch_no: batch,
-                    total_quantity: qty,
-                    mfg_date: mfg,
-                    exp_date: exp,
-                    license_no: license,
-                    description: desc,
-                    product_images: imageUrls,
-                    main_category: user.main_category || 'General',
-                    sub_category: user.sub_category || 'General',
-                    status: 'Approved'
-                }]).select().single();
+                // ৫. প্রডাক্ট টেবিলে ইনসার্ট (status = 'approved')
+                const { data: product, error: pErr } = await supabaseClient
+                    .from('products')
+                    .insert([{
+                        merchant_id: user.id,
+                        title: title,
+                        price: price,
+                        batch_no: batch,
+                        total_quantity: qty,
+                        mfg_date: mfg,
+                        exp_date: exp,
+                        license_no: license,
+                        description: desc,
+                        product_images: imageUrls,
+                        main_category: user.main_category || 'General',
+                        sub_category: user.sub_category || 'General',
+                        status: 'approved'
+                    }])
+                    .select()
+                    .single();
 
                 if (pErr) throw pErr;
 
-                // 3. Generate Non-Predictable Cryptographic Secure Unit QR Codes
+                // ৬. সিকিউর ইউনিক QR কোড তৈরি করা
                 const itemCodes = [];
                 const timeStamp = Date.now().toString(36).toUpperCase();
 
@@ -243,13 +259,17 @@
                     });
                 }
 
-                const { error: codeErr } = await supabaseClient.from('product_item_codes').insert(itemCodes);
+                const { error: codeErr } = await supabaseClient
+                    .from('product_item_codes')
+                    .insert(itemCodes);
+
                 if (codeErr) throw codeErr;
 
                 alert(`ছবি ও ${qty} টি ইউনিক সিকিউরড QR কোডসহ পণ্য সফলভাবে যুক্ত করা হয়েছে!`);
                 window.location.href = 'viewmyproduct.html';
 
             } catch (err) {
+                console.error("Submission Error:", err);
                 alert('ত্রুটি: ' + err.message);
             } finally {
                 btn.disabled = false;
